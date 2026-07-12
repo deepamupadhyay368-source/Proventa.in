@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { logEvent } from '@/lib/logger';
 import { guardEndpoint } from '@/lib/tenant';
+import { sendEmail, sendSms, sendWhatsApp } from '@/lib/services/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,6 +79,21 @@ export async function POST(request: Request) {
           type: 'SUCCESS'
         }
       });
+
+      // 3. Dispatch actual email, SMS, and WhatsApp alerts based on action mappings
+      if (actionType === 'SEND_EMAIL') {
+        await sendEmail(
+          session.email,
+          `Proventa Workflow Escalation: ${rule.name}`,
+          `<p>The workflow rule <strong>"${rule.name}"</strong> has run successfully.</p>
+           <p><strong>Trigger Event</strong>: ${rule.trigger}</p>
+           <p><strong>Resolved Action</strong>: Dispatch Audit Escalation Email</p>`
+        );
+      } else if (actionType === 'NOTIFY_USER') {
+        const userPhone = '+1234567890'; // fallback notification target
+        await sendSms(userPhone, `Proventa Alert: Workflow "${rule.name}" triggered by ${rule.trigger}.`);
+        await sendWhatsApp(userPhone, `Proventa Alert: Workflow "${rule.name}" triggered by ${rule.trigger}.`);
+      }
 
       await logEvent(
         session.userId,
