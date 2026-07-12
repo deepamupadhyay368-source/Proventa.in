@@ -20,7 +20,8 @@ import {
   Sparkles, 
   Building2,
   Menu,
-  X
+  X,
+  Briefcase
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navLinks = [
     { href: '/dashboard', label: 'Executive Dashboard', icon: <LayoutDashboard size={18} /> },
     { href: '/dashboard/portfolio', label: 'Portfolio Analytics', icon: <Users2 size={18} /> },
+    { href: '/dashboard/ca-copilot', label: 'AI CA Copilot', icon: <Briefcase size={18} /> },
     { href: '/dashboard/vault', label: 'Secure Document Vault', icon: <FileLock2 size={18} /> },
     { href: '/dashboard/api-portal', label: 'API & Dev Portal', icon: <KeyRound size={18} /> },
     { href: '/dashboard/audit-logs', label: 'Audit & Activity Logs', icon: <Activity size={18} /> },
