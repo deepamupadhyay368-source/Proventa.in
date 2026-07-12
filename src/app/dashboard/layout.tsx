@@ -91,6 +91,131 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="dashboard-layout">
+      {/* Mobile Drawer Overlay background */}
+      {mobileOpen && (
+        <div 
+          className="mobile-overlay"
+          onClick={() => setMobileOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(11, 31, 58, 0.4)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 899,
+          }}
+        />
+      )}
+
+      {/* Mobile Drawer Navigation Sidebar */}
+      <aside 
+        className={`mobile-sidebar ${mobileOpen ? 'open' : ''}`}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '270px',
+          height: '100%',
+          background: 'var(--card)',
+          zIndex: 999,
+          borderRight: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform var(--transition-normal)',
+        }}
+      >
+        <div style={{
+          height: '64px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 1.5rem',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="logo-icon">P</div>
+            <span style={{ fontSize: '1.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em' }}>PROVENTA</span>
+          </div>
+          <button 
+            onClick={() => setMobileOpen(false)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center' }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div style={{
+          margin: '1rem 1.25rem 0.25rem 1.25rem',
+          padding: '0.75rem 1rem',
+          background: 'rgba(var(--primary-rgb), 0.04)',
+          border: '1px solid rgba(var(--primary-rgb), 0.1)',
+          borderRadius: 'var(--radius-sm)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.6rem'
+        }}>
+          <Building2 size={16} style={{ color: 'var(--primary)' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>Active Workspace</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--foreground)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              {user.organization?.name || 'Default Org'}
+            </span>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link 
+                key={link.href} 
+                href={link.href} 
+                className={`sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.icon}
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div style={{
+          padding: '1rem 1.25rem',
+          borderTop: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'var(--background)'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--foreground)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              {user.name}
+            </span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600 }}>
+              Role: {user.role}
+            </span>
+          </div>
+          <button 
+            onClick={handleLogout} 
+            title="Logout"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--muted)',
+              padding: '0.4rem',
+              borderRadius: 'var(--radius-sm)'
+            }}
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </aside>
+
       {/* Sidebar - Desktop */}
       <aside className="sidebar" style={{ display: 'flex', zIndex: 900 }}>
         {/* Sidebar Header */}
@@ -104,7 +229,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }}>
           <div className="logo-icon">P</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '1.2rem', fontFamily: 'Outfit', fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em' }}>PROVENTA</span>
+            <span style={{ fontSize: '1.2rem', fontFamily: 'var(--font-heading)', fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em' }}>PROVENTA</span>
             <span style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.1em' }}>CREDIT INTELLIGENCE</span>
           </div>
         </div>
@@ -186,9 +311,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="main-content" style={{ display: 'flex', flexDirection: 'column' }}>
         {/* Top Navigation Panel */}
         <header className="top-nav">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {/* Breadcrumbs or greeting */}
-            <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Hamburger button for mobile */}
+            <button 
+              className="mobile-nav-toggle"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--foreground)',
+                padding: '0.45rem',
+                borderRadius: '8px',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            <span style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--muted)' }} className="header-greeting">
               Welcome back, <strong>{user.name.split(' ')[0]}</strong>
             </span>
           </div>
@@ -281,7 +423,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               borderRadius: 'var(--radius-full)',
               fontSize: '0.75rem',
               fontWeight: 700
-            }}>
+            }} className="desktop-only">
               <Sparkles size={12} />
               Zero Trust Protected
             </div>
@@ -289,7 +431,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Dashboard Slot Pages */}
-        <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+        <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }} className="dashboard-main">
           {children}
         </main>
       </div>

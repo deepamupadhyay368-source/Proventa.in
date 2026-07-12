@@ -235,17 +235,9 @@ export default function RootLandingPage() {
       {/* Main Hero Container */}
       <main style={{ flex: 1, zIndex: 10 }}>
         {/* Full-width premium Hero Section */}
-        <section style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '5rem 3rem 4rem 3rem',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(12, 1fr)',
-          gap: '3rem',
-          alignItems: 'center'
-        }}>
+        <section className="hero-grid" style={{ maxWidth: '1440px', margin: '0 auto' }}>
           {/* Left Column Text */}
-          <div style={{ gridColumn: 'span 7' }}>
+          <div className="hero-text-col">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '100px', padding: '0.35rem 1rem', color: 'var(--info)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '1.5rem' }}>
               <Sparkles size={14} />
               <span>Next-Gen Enterprise Credit Automation</span>
@@ -272,7 +264,7 @@ export default function RootLandingPage() {
               Transform financial data into actionable credit decisions with AI-powered risk analysis, cash flow intelligence, financial insights, and enterprise automation.
             </p>
 
-            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '14px', padding: '1rem 2.25rem', fontSize: '1rem', background: 'var(--primary)' }}>
                 Request Demo
                 <ArrowRight size={16} />
@@ -297,7 +289,7 @@ export default function RootLandingPage() {
           </div>
 
           {/* Right Column: Premium Dashboard Floating Mockup */}
-          <div style={{ gridColumn: 'span 5', position: 'relative' }}>
+          <div className="hero-visual-col" style={{ position: 'relative' }}>
             <div className="card" style={{
               borderRadius: '20px',
               border: '1px solid var(--border)',
@@ -392,9 +384,9 @@ export default function RootLandingPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '3rem', alignItems: 'start' }}>
+          <div className="dashboard-grid" style={{ alignItems: 'start', gap: '2rem' }}>
             {/* Input Form Card */}
-            <div className="card" style={{ gridColumn: 'span 6', background: 'var(--card)', padding: '2.5rem' }}>
+            <div className="card col-6" style={{ padding: '2.5rem' }}>
               <form onSubmit={runInteractiveCalculator}>
                 <div className="form-group">
                   <label className="form-label">Company Name</label>
@@ -464,7 +456,7 @@ export default function RootLandingPage() {
             </div>
 
             {/* Assessment Score Results Output View */}
-            <div style={{ gridColumn: 'span 6', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div className="col-6" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div className="card" style={{ background: 'var(--card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1.5rem' }}>Automated Analysis Result</h3>
                 
@@ -525,8 +517,8 @@ export default function RootLandingPage() {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
-              <div className="card" style={{ gridColumn: 'span 4', padding: '2rem' }}>
+            <div className="dashboard-grid" style={{ gap: '2rem' }}>
+              <div className="card col-4" style={{ padding: '2rem' }}>
                 <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
                   <FileSpreadsheet size={22} />
                 </div>
@@ -536,7 +528,7 @@ export default function RootLandingPage() {
                 </p>
               </div>
 
-              <div className="card" style={{ gridColumn: 'span 4', padding: '2rem' }}>
+              <div className="card col-4" style={{ padding: '2rem' }}>
                 <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
                   <Scale size={22} />
                 </div>
@@ -546,7 +538,7 @@ export default function RootLandingPage() {
                 </p>
               </div>
 
-              <div className="card" style={{ gridColumn: 'span 4', padding: '2rem' }}>
+              <div className="card col-4" style={{ padding: '2rem' }}>
                 <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
                   <Workflow size={22} />
                 </div>
@@ -607,8 +599,8 @@ export default function RootLandingPage() {
 
       {/* Premium B2B Footer */}
       <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--card)', padding: '4rem 3rem' }}>
-        <div style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '3rem', marginBottom: '3rem' }}>
-          <div style={{ gridColumn: 'span 4' }}>
+        <div className="dashboard-grid" style={{ maxWidth: '1440px', margin: '0 auto', gap: '2rem', marginBottom: '3rem' }}>
+          <div className="col-4">
             <div className="logo-container" style={{ marginBottom: '1.5rem' }}>
               <div className="logo-icon" style={{ background: 'var(--primary)', color: 'white', borderRadius: '8px' }}>P</div>
               <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.3rem' }}>PROVENTA</span>
@@ -619,7 +611,7 @@ export default function RootLandingPage() {
             <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>© {new Date().getFullYear()} Proventa. All rights reserved.</span>
           </div>
 
-          <div style={{ gridColumn: 'span 2' }}>
+          <div className="col-2">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Solutions</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
               <span>Credit Intelligence</span>
@@ -629,7 +621,7 @@ export default function RootLandingPage() {
             </div>
           </div>
 
-          <div style={{ gridColumn: 'span 2' }}>
+          <div className="col-2">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Industries</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
               <span>Banking & NBFCs</span>
@@ -639,7 +631,7 @@ export default function RootLandingPage() {
             </div>
           </div>
 
-          <div style={{ gridColumn: 'span 2' }}>
+          <div className="col-2">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Developer APIs</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
               <span>API Reference</span>
@@ -649,7 +641,7 @@ export default function RootLandingPage() {
             </div>
           </div>
 
-          <div style={{ gridColumn: 'span 2' }}>
+          <div className="col-2">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Security</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
               <span>Privacy Policy</span>
