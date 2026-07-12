@@ -320,3 +320,15 @@ model KnowledgeDocument {
   category       String   // POLICY, SOP, MANUAL
   createdAt      DateTime @default(now())
 }
+
+model Waitlist {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  company   String
+  industry  String
+  revenue   Float
+  priority  String
+  position  Int
+  createdAt DateTime @default(now())
+}

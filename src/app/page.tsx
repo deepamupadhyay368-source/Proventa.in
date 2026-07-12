@@ -264,8 +264,8 @@ export default function RootLandingPage() {
                 <Link href="/login" style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', padding: '0.6rem 1.2rem' }}>
                   Sign In
                 </Link>
-                <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem', background: 'var(--primary)' }}>
-                  Request Demo
+                <Link href="/waitlist" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem', background: 'var(--primary)' }}>
+                  Join Waitlist
                 </Link>
               </>
             )}
@@ -306,8 +306,8 @@ export default function RootLandingPage() {
             </p>
 
             <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '14px', padding: '1rem 2.25rem', fontSize: '1rem', background: 'var(--primary)' }}>
-                Request Demo
+              <Link href="/waitlist" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '14px', padding: '1rem 2.25rem', fontSize: '1rem', background: 'var(--primary)' }}>
+                Join Priority Waitlist
                 <ArrowRight size={16} />
               </Link>
               
@@ -656,7 +656,7 @@ export default function RootLandingPage() {
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Solutions</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
               <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Credit Intelligence', desc: 'Enterprise-grade credit scoring for trade counterparties. Upload PAN/GST credentials, scan registry filings, and retrieve real-time ratings in seconds.', ctaText: 'Launch Assessment', link: '/login' })}>Credit Intelligence</span>
-              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Risk Management', desc: 'Configure trigger events, set automated credit limits, and define notification warnings. Proventa flags payment delinquencies before they affect your balance sheet.', ctaText: 'Request Demo', link: '/signup' })}>Risk Management</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Risk Management', desc: 'Configure trigger events, set automated credit limits, and define notification warnings. Proventa flags payment delinquencies before they affect your balance sheet.', ctaText: 'Join Waitlist', link: '/waitlist' })}>Risk Management</span>
               <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Cash Flow Analytics', desc: 'Automated bank statement parsing. Track credit-to-debit ratios, average ledger balances, and cash runaways to forecast counterparties liquidity.', ctaText: 'Analyze Statements', link: '/login' })}>Cash Flow Analytics</span>
               <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Compliance Scan', desc: 'Scan corporate legal filings across district and high courts. Verify GST registration active status and run director KYC background checks.', ctaText: 'Verify Now', link: '/login' })}>Compliance Scan</span>
             </div>
@@ -665,10 +665,10 @@ export default function RootLandingPage() {
           <div className="col-2">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Industries</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Banking & NBFCs', desc: 'Underwrite trade credit lines faster. Integrate algorithmic credit scoring directly into loan origination systems to reduce NPA defaults.', ctaText: 'Request Institutional Access', link: '/signup' })}>Banking & NBFCs</span>
-              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Manufacturers Solutions', desc: 'Protect distributor chains. Set automatic credit thresholds and receive instant default warnings on overdue dealer accounts.', ctaText: 'Protect Distributor Chain', link: '/signup' })}>Manufacturers</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Banking & NBFCs', desc: 'Underwrite trade credit lines faster. Integrate algorithmic credit scoring directly into loan origination systems to reduce NPA defaults.', ctaText: 'Request Institutional Access', link: '/waitlist' })}>Banking & NBFCs</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Manufacturers Solutions', desc: 'Protect distributor chains. Set automatic credit thresholds and receive instant default warnings on overdue dealer accounts.', ctaText: 'Protect Distributor Chain', link: '/waitlist' })}>Manufacturers</span>
               <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Exporters Coverage', desc: 'Manage global buyer risk. Track cross-border counterparties default matrices and insolvency registry filings in real-time.', ctaText: 'Begin Ingestion', link: '/login' })}>Exporters</span>
-              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'SMEs & Fintechs Tools', desc: 'Level the playing field. Access institutional-grade credit intelligence without expensive credit bureau subscriptions or minimum spend requirements.', ctaText: 'Start Free Assessment', link: '/signup' })}>SMEs & Fintechs</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'SMEs & Fintechs Tools', desc: 'Level the playing field. Access institutional-grade credit intelligence without expensive credit bureau subscriptions or minimum spend requirements.', ctaText: 'Start Free Assessment', link: '/waitlist' })}>SMEs & Fintechs</span>
             </div>
           </div>
 
@@ -677,8 +677,8 @@ export default function RootLandingPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
               <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Privacy Policy', desc: 'Zero data-sharing guarantee. All business tax data and ledger statements are locked under per-organization envelope encryption keys (DEK).', ctaText: 'View Consent Matrix', link: '/login' })}>Privacy Policy</span>
               <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Security Center', desc: 'SOC-2 certified framework. Direct AES-256-GCM data encryption, automated audit trails, and Strict HSTS TLS 1.3 transit security.', ctaText: 'Review Security Controls', link: '/login' })}>Security Center</span>
-              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'SOC 2 Compliance Standards', desc: 'Fully compliant with SOC-2 security protocols. Proventa undergoes annual external penetration audits and continuous security controls monitoring.', ctaText: 'Request Compliance Report', link: '/signup' })}>SOC 2 Compliance</span>
-              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Terms of Service', desc: 'B2B SaaS subscription parameters. Complete SLA uptime guarantees, database safety commitments, and tenant data isolation rules.', ctaText: 'Acknowledge Terms', link: '/signup' })}>Terms of Service</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'SOC 2 Compliance Standards', desc: 'Fully compliant with SOC-2 security protocols. Proventa undergoes annual external penetration audits and continuous security controls monitoring.', ctaText: 'Request Compliance Report', link: '/waitlist' })}>SOC 2 Compliance</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Terms of Service', desc: 'B2B SaaS subscription parameters. Complete SLA uptime guarantees, database safety commitments, and tenant data isolation rules.', ctaText: 'Acknowledge Terms', link: '/waitlist' })}>Terms of Service</span>
             </div>
           </div>
         </div>
