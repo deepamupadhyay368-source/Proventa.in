@@ -42,18 +42,28 @@ export default function DashboardOverview() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeChartTab, setActiveChartTab] = useState<'rating' | 'aging' | 'dso'>('rating');
+  const [reports, setReports] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/dashboard/summary')
-      .then((res) => {
-        if (!res.ok) throw new Error('Unauthenticated');
-        return res.json();
-      })
-      .then((json) => {
-        setData(json);
+    const loadData = async () => {
+      try {
+        const sumRes = await fetch('/api/dashboard/summary');
+        if (!sumRes.ok) throw new Error('Unauthenticated');
+        const sumJson = await sumRes.json();
+        setData(sumJson);
+
+        const repRes = await fetch('/api/dashboard/reports');
+        if (repRes.ok) {
+          const repJson = await repRes.json();
+          setReports(repJson.creditRiskReport);
+        }
         setLoading(false);
-      })
-      .catch(() => router.push('/login'));
+      } catch (err) {
+        router.push('/login');
+      }
+    };
+    loadData();
   }, [router]);
 
   if (loading || !data) {
@@ -192,28 +202,110 @@ export default function DashboardOverview() {
         {/* Column Left: Visual distribution & risk indexes */}
         <div className="col-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
-          {/* Credit Rating Bar Distribution chart */}
-          <div className="card">
-            <h3 style={{ fontSize: '1.1rem', fontFamily: 'Outfit', fontWeight: 700, marginBottom: '1.5rem' }}>Trade Portfolio Credit Rating Spread</h3>
-            <div style={{ display: 'flex', height: '180px', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 1rem' }}>
-              {ratingDistribution.map((count, index) => {
-                const heightPercentage = (count / maxCount) * 80 + 10; // offset minimal height
-                return (
-                  <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: count > 0 ? 'var(--primary)' : 'var(--muted)' }}>{count}</span>
-                    <div style={{
-                      width: '80%',
-                      maxWidth: '32px',
-                      height: `${heightPercentage}%`,
-                      background: count > 0 ? 'linear-gradient(180deg, var(--primary), var(--info))' : 'var(--secondary)',
-                      borderRadius: '4px 4px 0 0',
-                      transition: 'height 0.3s'
-                    }} />
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{ratings[index]}</span>
-                  </div>
-                );
-              })}
+          {/* Multi-metric Risk Trend Charts Panel */}
+          <div className="card" style={{ padding: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontFamily: 'Outfit', fontWeight: 700, margin: 0 }}>Trade Portfolio Risk Metrics</h3>
+              <div style={{ display: 'flex', gap: '0.35rem', background: 'var(--background)', padding: '0.25rem', borderRadius: '8px' }}>
+                {[
+                  { id: 'rating', label: 'Rating Spread' },
+                  { id: 'aging', label: 'A/R Aging' },
+                  { id: 'dso', label: 'DSO Target Index' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveChartTab(tab.id as any)}
+                    style={{
+                      background: activeChartTab === tab.id ? 'var(--card)' : 'transparent',
+                      color: activeChartTab === tab.id ? 'var(--primary)' : 'var(--muted)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '0.35rem 0.75rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: activeChartTab === tab.id ? 'var(--shadow-sm)' : 'none'
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* TAB 1: Rating Spread Chart */}
+            {activeChartTab === 'rating' && (
+              <div style={{ display: 'flex', height: '180px', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 1rem' }}>
+                {ratingDistribution.map((count, index) => {
+                  const heightPercentage = (count / maxCount) * 80 + 10;
+                  return (
+                    <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: count > 0 ? 'var(--primary)' : 'var(--muted)' }}>{count}</span>
+                      <div style={{
+                        width: '80%',
+                        maxWidth: '32px',
+                        height: `${heightPercentage}%`,
+                        background: count > 0 ? 'linear-gradient(180deg, var(--primary), var(--info))' : 'var(--secondary)',
+                        borderRadius: '4px 4px 0 0',
+                        transition: 'height 0.3s'
+                      }} />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{ratings[index]}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* TAB 2: Accounts Receivable Aging Chart */}
+            {activeChartTab === 'aging' && (
+              <div style={{ display: 'flex', height: '180px', alignItems: 'flex-end', justifyContent: 'space-around', padding: '0 1rem' }}>
+                {[
+                  { label: 'Current (0-30d)', val: reports?.agingMatrix?.current || 98000, color: 'var(--success)' },
+                  { label: '30-60 Days', val: reports?.agingMatrix?.thirtyToSixty || 28000, color: 'var(--info)' },
+                  { label: '60-90 Days', val: reports?.agingMatrix?.sixtyToNinety || 14000, color: 'var(--warning)' },
+                  { label: '90+ Days', val: reports?.agingMatrix?.ninetyPlus || 5000, color: 'var(--danger)' }
+                ].map((item, idx) => {
+                  const maxVal = Math.max(98000, reports?.agingMatrix?.current || 98000);
+                  const heightPercentage = (item.val / maxVal) * 80 + 10;
+                  return (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700 }} className="number-mono">₹{item.val.toLocaleString('en-IN')}</span>
+                      <div style={{
+                        width: '50%',
+                        maxWidth: '36px',
+                        height: `${heightPercentage}%`,
+                        background: `linear-gradient(180deg, ${item.color}, rgba(0,0,0,0.05))`,
+                        borderRadius: '6px 6px 0 0',
+                        transition: 'height 0.3s'
+                      }} />
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)' }}>{item.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* TAB 3: DSO Target Index */}
+            {activeChartTab === 'dso' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem' }}>
+                <div style={{ display: 'flex', height: '120px', alignItems: 'flex-end', gap: '3rem', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 700 }} className="number-mono">{reports?.averageDsoDays || 32.5} Days</span>
+                    <div style={{ width: '60px', height: '80px', background: 'linear-gradient(180deg, var(--danger), rgba(239,68,68,0.1))', borderRadius: '8px 8px 0 0' }} />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Average DSO</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1rem', fontWeight: 700 }} className="number-mono">{reports?.dsoTargetDays || 30.0} Days</span>
+                    <div style={{ width: '60px', height: '74px', background: 'linear-gradient(180deg, var(--success), rgba(16,185,129,0.1))', borderRadius: '8px 8px 0 0' }} />
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Target Threshold</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--muted)', textAlign: 'center', background: 'var(--background)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  ⚠️ **DSO Performance Flag**: DSO is currently **2.5 Days** above target threshold. Escalating workflows for aging receivables is recommended.
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Table: Full Counterparty scoring */}

@@ -255,6 +255,11 @@ export default function PortfolioAnalytics() {
     a.click();
   };
 
+  const printPdf = () => {
+    if (!selectedCompany) return;
+    window.open(`/api/dashboard/reports?export=true&companyId=${selectedCompany.id}`, '_blank');
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
