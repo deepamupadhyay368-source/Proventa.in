@@ -71,9 +71,10 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff'); // Prevents MIME Sniffing
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Enforce HSTS (Strict-Transport-Security)
-  // Forces secure HTTPS connections on the domain
-  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  // Enforce HSTS (Strict-Transport-Security) in production environments
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  }
   
   // Cross-Origin policies
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
