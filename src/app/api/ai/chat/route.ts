@@ -22,10 +22,6 @@ const PROMPT_INJECTION_KEYWORDS = [
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.organizationId) {
-      return NextResponse.json({ error: 'Unauthorized. Session required.' }, { status: 401 });
-    }
-
     const { message } = await request.json();
     if (!message) {
       return NextResponse.json({ error: 'Message query is required' }, { status: 400 });
@@ -36,15 +32,61 @@ export async function POST(request: Request) {
     // 1. Guardrails check: Prompt Injection & Jailbreak Attempts Filter
     const hasInjectionAttempt = PROMPT_INJECTION_KEYWORDS.some(keyword => query.includes(keyword));
     if (hasInjectionAttempt) {
-      await logEvent(
-        session.userId,
-        session.email,
-        'AI_PROMPT_INJECTION_ATTEMPT',
-        `Blocked potential prompt injection query: "${message.substring(0, 100)}"`
-      );
+      if (session) {
+        await logEvent(
+          session.userId,
+          session.email,
+          'AI_PROMPT_INJECTION_ATTEMPT',
+          `Blocked potential prompt injection query: "${message.substring(0, 100)}"`
+        );
+      }
       return NextResponse.json({ 
         reply: '⚠️ **Proventa AI Guardrails Alert**: Your query was blocked because it contains instructions that violate our system safety rules.' 
       });
+    }
+
+    // 2. If NO session exists, handle as a public marketing query
+    if (!session || !session.organizationId) {
+      let reply = '';
+      if (query.includes('features') || query.includes('what is') || query.includes('how does') || query.includes('proventa') || query.includes('capability')) {
+        reply = `### What is Proventa?
+Proventa is an enterprise-grade **AI Credit Intelligence Platform** designed for CFOs, credit managers, and B2B finance departments.
+
+**Key Capabilities:**
+* 🛡️ **Automated Credit Assessments**: Instant risk matrix calculations and credit rating assignments.
+* 📋 **Compliance Scan & Due Diligence**: Automated CIN, GSTIN, PAN validation and civil litigation monitoring.
+* 🔌 **ERP & Banking Connectors**: Out-of-the-box syncing with QuickBooks, Tally, HDFC Bank, etc.
+* 💸 **Cash Flow Reconciliation**: AI matching ledger logs against bank records to detect discrepancies.
+
+*To see these features in action, please [Sign Up](/signup) or request a demo!*`;
+      } 
+      else if (query.includes('pricing') || query.includes('cost') || query.includes('plan')) {
+        reply = `### Proventa Pricing Plans
+We offer flexible tier options tailored to your business volume:
+* 🏢 **Free Trial**: Includes 5 company scans, core KYC validation, and email support.
+* 🚀 **Growth Plan**: Includes 50 monthly scans, ERP integrations, and basic risk forecasting.
+* 👑 **Enterprise Plan**: Custom volumes, dedicated database isolation, custom data retention policies, and SOC-2 security protocols.
+
+[Click here to Request a Demo](/signup) or contact our sales team to discuss enterprise options.`;
+      }
+      else if (query.includes('security') || query.includes('compliance') || query.includes('soc') || query.includes('privacy')) {
+        reply = `### Enterprise-Grade Security
+At Proventa, security is built into our core architecture:
+* 🔒 **Data Encryption Key (DEK) Isolation**: All sensitive counterparty tax and financial documents are isolated per-tenant.
+* 🛡️ **SOC-2 & GDPR Compliance**: Aligned with industry security benchmarks.
+* 👤 **Least Privilege Access Control**: Roles (Viewer, Sales, Credit Manager, Admin) enforce masked displays for sensitive identifiers.`;
+      }
+      else {
+        reply = `Hello! I am the **Proventa AI Assistant**. 
+
+I can answer questions about:
+* **Proventa features** (e.g., credit assessments, due diligence audits, ledger reconciliations).
+* **Enterprise Security** (e.g., SOC-2 compliance, encryption keys).
+* **Plans and pricing**.
+
+🔒 *Note: To generate credit memos or query live portfolio metrics, please [Sign In](/login).*`;
+      }
+      return NextResponse.json({ reply });
     }
 
     // Retrieve organization's Data Encryption Key (DEK)

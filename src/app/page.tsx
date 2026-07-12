@@ -21,7 +21,10 @@ import {
   FileSpreadsheet,
   Workflow,
   Sparkles,
-  Play
+  Play,
+  MessageSquare,
+  Send,
+  X
 } from 'lucide-react';
 
 export default function RootLandingPage() {
@@ -45,6 +48,43 @@ export default function RootLandingPage() {
 
   // FAQ Accordion toggles
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  // Public AI Chatbot States
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([
+    { role: 'assistant', content: 'Hello! I am the **Proventa AI Assistant**. How can I help you today?' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+
+  const sendChatMessage = async (textToSend?: string) => {
+    const text = textToSend || chatInput;
+    if (!text.trim()) return;
+    setChatInput('');
+    setChatLoading(true);
+
+    const userMsg = { role: 'user', content: text };
+    const nextMsgs = [...chatMessages, userMsg];
+    setChatMessages(nextMsgs);
+
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages([...nextMsgs, { role: 'assistant', content: data.reply }]);
+      } else {
+        setChatMessages([...nextMsgs, { role: 'assistant', content: 'Sorry, I encountered an issue handling that request.' }]);
+      }
+    } catch (e) {
+      setChatMessages([...nextMsgs, { role: 'assistant', content: 'Network error. Please try again.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -652,6 +692,188 @@ export default function RootLandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Floating AI Chatbot Button */}
+      <button 
+        onClick={() => setChatOpen(!chatOpen)}
+        className="chat-toggle"
+        style={{
+          position: 'fixed',
+          bottom: '95px',
+          right: '25px',
+          background: 'var(--primary)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: 'var(--radius-full)',
+          boxShadow: 'var(--shadow-lg)',
+          padding: '1rem',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'transform 0.2s'
+        }}
+        aria-label="Toggle AI Advisor"
+      >
+        <MessageSquare size={22} />
+      </button>
+
+      {/* Floating Chatbot Window */}
+      {chatOpen && (
+        <div style={{
+          position: 'fixed',
+          bottom: '165px',
+          right: '25px',
+          width: '380px',
+          height: '500px',
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: '20px',
+          boxShadow: 'var(--shadow-2xl)',
+          zIndex: 1001,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          {/* Header */}
+          <div style={{
+            padding: '1.25rem',
+            borderBottom: '1px solid var(--border)',
+            background: 'var(--primary)',
+            color: '#ffffff',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Sparkles size={18} />
+              <span style={{ fontWeight: 700 }}>Proventa AI Advisor</span>
+            </div>
+            <button 
+              onClick={() => setChatOpen(false)}
+              style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer', display: 'flex' }}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Messages Stream */}
+          <div style={{
+            flex: 1,
+            padding: '1.25rem',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            background: 'var(--background)'
+          }}>
+            {chatMessages.map((m, idx) => (
+              <div 
+                key={idx} 
+                style={{
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  background: m.role === 'user' ? 'var(--primary)' : 'var(--card)',
+                  color: m.role === 'user' ? '#ffffff' : 'var(--foreground)',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '16px',
+                  border: m.role === 'user' ? 'none' : '1px solid var(--border)',
+                  maxWidth: '85%',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.5',
+                  whiteSpace: 'pre-wrap'
+                }}
+              >
+                {m.content}
+              </div>
+            ))}
+            {chatLoading && (
+              <div style={{ alignSelf: 'flex-start', color: 'var(--muted)', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <div className="animate-spin" style={{ width: '10px', height: '10px', border: '2px solid var(--border)', borderTopColor: 'var(--primary)', borderRadius: '50%' }} />
+                Thinking...
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions Footer */}
+          <div style={{
+            padding: '0.5rem 1rem',
+            display: 'flex',
+            gap: '0.5rem',
+            overflowX: 'auto',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--card)',
+            scrollbarWidth: 'none'
+          }}>
+            {[
+              { label: 'Core Features', query: 'What are the main features of Proventa?' },
+              { label: 'Pricing Plans', query: 'What are the pricing options?' },
+              { label: 'Data Security', query: 'Explain data security standards.' }
+            ].map((shortcut, idx) => (
+              <button
+                key={idx}
+                onClick={() => sendChatMessage(shortcut.query)}
+                style={{
+                  background: 'var(--background)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '100px',
+                  padding: '0.35rem 0.75rem',
+                  fontSize: '0.7rem',
+                  color: 'var(--muted)',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  fontWeight: 600
+                }}
+              >
+                {shortcut.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Input Box */}
+          <div style={{
+            padding: '1rem',
+            borderTop: '1px solid var(--border)',
+            display: 'flex',
+            gap: '0.5rem',
+            background: 'var(--card)'
+          }}>
+            <input 
+              type="text"
+              placeholder="Ask about Proventa..."
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+              style={{
+                flex: 1,
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                padding: '0.6rem 0.85rem',
+                fontSize: '0.85rem',
+                background: 'var(--background)',
+                color: 'var(--foreground)',
+                outline: 'none'
+              }}
+            />
+            <button 
+              onClick={() => sendChatMessage()}
+              style={{
+                background: 'var(--primary)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '0.6rem 0.85rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Send size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
