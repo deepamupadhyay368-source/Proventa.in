@@ -32,6 +32,7 @@ export default function RootLandingPage() {
   const { theme, toggleTheme } = useTheme();
   const [auth, setAuth] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [modalDetail, setModalDetail] = useState<{ title: string; desc: string; ctaText: string; link: string } | null>(null);
 
   // Interactive ROI Calculator States
   const [calcName, setCalcName] = useState('Delta Shipping Ltd');
@@ -651,43 +652,33 @@ export default function RootLandingPage() {
             <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>© {new Date().getFullYear()} Proventa. All rights reserved.</span>
           </div>
 
-          <div className="col-2">
+          <div className="col-3">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Solutions</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              <span>Credit Intelligence</span>
-              <span>Risk Management</span>
-              <span>Cash Flow Analytics</span>
-              <span>Compliance Scan</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Credit Intelligence', desc: 'Enterprise-grade credit scoring for trade counterparties. Upload PAN/GST credentials, scan registry filings, and retrieve real-time ratings in seconds.', ctaText: 'Launch Assessment', link: '/login' })}>Credit Intelligence</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Risk Management', desc: 'Configure trigger events, set automated credit limits, and define notification warnings. Proventa flags payment delinquencies before they affect your balance sheet.', ctaText: 'Request Demo', link: '/signup' })}>Risk Management</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Cash Flow Analytics', desc: 'Automated bank statement parsing. Track credit-to-debit ratios, average ledger balances, and cash runaways to forecast counterparties liquidity.', ctaText: 'Analyze Statements', link: '/login' })}>Cash Flow Analytics</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Compliance Scan', desc: 'Scan corporate legal filings across district and high courts. Verify GST registration active status and run director KYC background checks.', ctaText: 'Verify Now', link: '/login' })}>Compliance Scan</span>
             </div>
           </div>
 
           <div className="col-2">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Industries</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              <span>Banking & NBFCs</span>
-              <span>Manufacturers</span>
-              <span>Exporters</span>
-              <span>SMEs & Fintechs</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Banking & NBFCs', desc: 'Underwrite trade credit lines faster. Integrate algorithmic credit scoring directly into loan origination systems to reduce NPA defaults.', ctaText: 'Request Institutional Access', link: '/signup' })}>Banking & NBFCs</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Manufacturers Solutions', desc: 'Protect distributor chains. Set automatic credit thresholds and receive instant default warnings on overdue dealer accounts.', ctaText: 'Protect Distributor Chain', link: '/signup' })}>Manufacturers</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Exporters Coverage', desc: 'Manage global buyer risk. Track cross-border counterparties default matrices and insolvency registry filings in real-time.', ctaText: 'Begin Ingestion', link: '/login' })}>Exporters</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'SMEs & Fintechs Tools', desc: 'Level the playing field. Access institutional-grade credit intelligence without expensive credit bureau subscriptions or minimum spend requirements.', ctaText: 'Start Free Assessment', link: '/signup' })}>SMEs & Fintechs</span>
             </div>
           </div>
 
-          <div className="col-2">
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Developer APIs</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              <span>API Reference</span>
-              <span>System Status</span>
-              <span>Key Rotation</span>
-              <span>SDK Integrations</span>
-            </div>
-          </div>
-
-          <div className="col-2">
+          <div className="col-3">
             <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Security</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              <span>Privacy Policy</span>
-              <span>Security Center</span>
-              <span>SOC 2 Compliance</span>
-              <span>Terms of Service</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Privacy Policy', desc: 'Zero data-sharing guarantee. All business tax data and ledger statements are locked under per-organization envelope encryption keys (DEK).', ctaText: 'View Consent Matrix', link: '/login' })}>Privacy Policy</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Security Center', desc: 'SOC-2 certified framework. Direct AES-256-GCM data encryption, automated audit trails, and Strict HSTS TLS 1.3 transit security.', ctaText: 'Review Security Controls', link: '/login' })}>Security Center</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'SOC 2 Compliance Standards', desc: 'Fully compliant with SOC-2 security protocols. Proventa undergoes annual external penetration audits and continuous security controls monitoring.', ctaText: 'Request Compliance Report', link: '/signup' })}>SOC 2 Compliance</span>
+              <span className="footer-interactive-link" style={{ cursor: 'pointer' }} onClick={() => setModalDetail({ title: 'Terms of Service', desc: 'B2B SaaS subscription parameters. Complete SLA uptime guarantees, database safety commitments, and tenant data isolation rules.', ctaText: 'Acknowledge Terms', link: '/signup' })}>Terms of Service</span>
             </div>
           </div>
         </div>
@@ -871,6 +862,56 @@ export default function RootLandingPage() {
             >
               <Send size={14} />
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Details Modal */}
+      {modalDetail && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(11, 31, 58, 0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '1.5rem'
+        }}>
+          <div className="card animate-fade-in" style={{
+            maxWidth: '500px',
+            width: '100%',
+            padding: '2.5rem',
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '20px',
+            boxShadow: 'var(--shadow-2xl)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit' }}>{modalDetail.title}</h3>
+              <button 
+                onClick={() => setModalDetail(null)} 
+                style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p style={{ fontSize: '0.95rem', color: 'var(--muted)', lineHeight: '1.6' }}>{modalDetail.desc}</p>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <button onClick={() => { setModalDetail(null); router.push(modalDetail.link); }} className="btn btn-primary" style={{ flex: 1 }}>
+                {modalDetail.ctaText}
+              </button>
+              <button onClick={() => setModalDetail(null)} className="btn btn-secondary">
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
