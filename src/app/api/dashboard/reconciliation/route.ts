@@ -96,3 +96,39 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+// PUT: Resolves a flagged reconciliation anomaly
+export async function PUT(request: Request) {
+  try {
+    const session = await getSession();
+    const guard = await guardEndpoint(session, 'CREDIT_MANAGER');
+    if (!guard.authorized) {
+      return NextResponse.json({ error: guard.error }, { status: guard.status });
+    }
+
+    const { id } = await request.json();
+    if (!id) {
+      return NextResponse.json({ error: 'Record ID is required' }, { status: 400 });
+    }
+
+    const record = await db.reconciliationRecord.update({
+      where: { id, organizationId: session!.organizationId! },
+      data: {
+        status: 'RESOLVED',
+        suggestedResolution: 'Manually verified and matched by Risk Officer.'
+      }
+    });
+
+    await logEvent(
+      session!.userId,
+      session!.email,
+      'RECONCILIATION_RESOLVED',
+      `Resolved reconciliation discrepancy: ${record.type} ($${record.difference})`
+    );
+
+    return NextResponse.json({ success: true, record });
+  } catch (error: any) {
+    console.error('Reconciliation PUT error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

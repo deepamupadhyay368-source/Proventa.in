@@ -30,6 +30,8 @@ export default function CommandCenter() {
   const [dataCatalog, setDataCatalog] = useState<any[]>([]);
   const [retentionPolicies, setRetentionPolicies] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('default');
   
   // Forms & Actions State
   const [newWorkflow, setNewWorkflow] = useState({ name: '', trigger: 'PAYMENT_DELAYED', action: 'NOTIFY_USER' });
@@ -40,8 +42,8 @@ export default function CommandCenter() {
   const [governanceForm, setGovernanceForm] = useState({ category: 'Financial Documents', duration: '7 Years', action: 'ARCHIVE' });
   const [governanceMessage, setGovernanceMessage] = useState('');
 
-  // AI Explainability state
-  const [explainCompany, setExplainCompany] = useState({
+  // Default AI Explainability state
+  const defaultExplainCompany = {
     name: 'Alpha Logistics Inc',
     rating: 'AA',
     score: 746,
@@ -56,14 +58,46 @@ export default function CommandCenter() {
       'Missing Audited P&L statements for FY25.',
       'Average payment delays are rising in the logistics industry category.'
     ]
-  });
+  };
 
   useEffect(() => {
     fetchWorkflows();
     fetchReconciliations();
     fetchGovernance();
     fetchTasks();
+    fetchSummary();
   }, []);
+
+  const fetchSummary = async () => {
+    try {
+      const res = await fetch('/api/dashboard/summary');
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Populate aggregated exposure metrics dynamically
+        if (data.portfolioMetrics) {
+          setMetrics(prev => ({
+            ...prev,
+            creditExposure: data.portfolioMetrics.totalExposure || 145000,
+            outstandingReceivables: data.portfolioMetrics.totalExposure || 145000,
+            openTasks: data.notifications?.length || 0
+          }));
+        }
+
+        const list = [];
+        if (data.primaryCompany) {
+          list.push(data.primaryCompany);
+        }
+        if (data.portfolioCompanies) {
+          list.push(...data.portfolioCompanies);
+        }
+        setCompanies(list);
+        if (list.length > 0) {
+          setSelectedCompanyId(list[0].id);
+        }
+      }
+    } catch (e) {}
+  };
 
   const fetchWorkflows = async () => {
     try {
@@ -125,6 +159,42 @@ export default function CommandCenter() {
         setWorkflowMessage('Workflow rule created successfully.');
         setNewWorkflow({ name: '', trigger: 'PAYMENT_DELAYED', action: 'NOTIFY_USER' });
         fetchWorkflows();
+      } else {
+        const err = await res.json();
+        setWorkflowMessage(`Error: ${err.error || 'Failed to create workflow rule.'}`);
+      }
+    } catch (e) {
+      setWorkflowMessage('Request failed.');
+    }
+  };
+
+  const handleDeleteWorkflow = async (id: string) => {
+    setWorkflowMessage('');
+    try {
+      const res = await fetch(`/api/dashboard/workflows?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setWorkflowMessage('Workflow rule removed successfully.');
+        fetchWorkflows();
+      } else {
+        const err = await res.json();
+        setWorkflowMessage(`Error: ${err.error || 'Failed to delete rule.'}`);
+      }
+    } catch (e) {}
+  };
+
+  const handleRunWorkflow = async (ruleId: string) => {
+    setWorkflowMessage('');
+    try {
+      const res = await fetch('/api/dashboard/workflows', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ruleId })
+      });
+      if (res.ok) {
+        setWorkflowMessage('Workflow triggered successfully. Simulated run logs generated.');
+        fetchWorkflows();
       }
     } catch (e) {}
   };
@@ -150,6 +220,33 @@ export default function CommandCenter() {
     } catch (e) {}
   };
 
+  const handleToggleTaskStatus = async (id: string, currentStatus: string) => {
+    try {
+      const res = await fetch('/api/dashboard/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          status: currentStatus === 'OPEN' ? 'COMPLETED' : 'OPEN'
+        })
+      });
+      if (res.ok) {
+        fetchTasks();
+      }
+    } catch (e) {}
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      const res = await fetch(`/api/dashboard/tasks?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchTasks();
+      }
+    } catch (e) {}
+  };
+
   const handleCreateGovernance = async (e: React.FormEvent) => {
     e.preventDefault();
     setGovernanceMessage('');
@@ -166,6 +263,9 @@ export default function CommandCenter() {
       if (res.ok) {
         setGovernanceMessage('Data retention policy rule added successfully.');
         fetchGovernance();
+      } else {
+        const err = await res.json();
+        setGovernanceMessage(`Error: ${err.error || 'Failed to update policy.'}`);
       }
     } catch (e) {}
   };
@@ -183,12 +283,75 @@ export default function CommandCenter() {
     } catch (e) {}
   };
 
+  const handleResolveReconciliation = async (id: string) => {
+    setReconciliationMessage('');
+    try {
+      const res = await fetch('/api/dashboard/reconciliation', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        setReconciliationMessage('Discrepancy successfully resolved in database.');
+        fetchReconciliations();
+      }
+    } catch (e) {}
+  };
+
+  // Dynamic AI Explainability Resolver
+  const getSelectedCompanyExplainability = () => {
+    const found = companies.find(c => c.id === selectedCompanyId);
+    if (!found) {
+      return defaultExplainCompany;
+    }
+
+    const rating = found.assessment?.creditRating || 'BBB';
+    const score = found.assessment?.creditScore || 685;
+    const risk = found.assessment?.riskScore || 32;
+    const litigationsCount = found.litigationsCount || 0;
+    const revenue = found.annualRevenue || 12000000;
+
+    const factors = [
+      { name: `Industry segment: ${found.industry}`, weight: '+15pts' },
+      { name: `Annual Revenue scale: ₹${(revenue / 100000).toFixed(1)} Lakhs`, weight: revenue > 10000000 ? '+25pts' : '+10pts' },
+      { name: `Calculated default risk metrics: ${risk}%`, weight: risk > 45 ? '-20pts' : '+15pts' }
+    ];
+
+    if (litigationsCount > 0) {
+      factors.push({ name: `Active civil disputes identified (${litigationsCount} cases)`, weight: `-${litigationsCount * 15}pts` });
+    } else {
+      factors.push({ name: 'Clean governance and zero insolvency registry flags', weight: '+15pts' });
+    }
+
+    const warnings = [];
+    if (litigationsCount > 0) {
+      warnings.push(`GST/ROC Flags: Company has ${litigationsCount} active civil lawsuits.`);
+    }
+    if (score < 650) {
+      warnings.push('Credit health score falls below optimal sector threshold.');
+    }
+    if (warnings.length === 0) {
+      warnings.push('All standard data records reconciled successfully.');
+    }
+
+    return {
+      name: found.name,
+      rating,
+      score,
+      confidence: Math.round(98 - risk / 2),
+      factors,
+      warnings
+    };
+  };
+
+  const activeExplainability = getSelectedCompanyExplainability();
+
   return (
-    <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Title Header */}
       <div>
-        <h1 style={{ fontSize: '2rem', fontFamily: 'Outfit', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <LayoutGrid size={32} style={{ color: 'var(--primary)' }} />
           Executive Command Center
         </h1>
@@ -198,31 +361,31 @@ export default function CommandCenter() {
       </div>
 
       {/* Overview Metrics Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-        <div className="card" style={{ padding: '1.25rem' }}>
+      <div className="dashboard-grid">
+        <div className="card col-3">
           <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>TOTAL CREDIT EXPOSURE</div>
-          <strong style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem' }}>
-            ${metrics.creditExposure.toLocaleString()}
+          <strong className="number-mono" style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem' }}>
+            ₹{metrics.creditExposure.toLocaleString('en-IN')}
           </strong>
         </div>
 
-        <div className="card" style={{ padding: '1.25rem' }}>
+        <div className="card col-3">
           <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>ACCOUNTS RECEIVABLE</div>
-          <strong style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem', color: 'var(--warning)' }}>
-            ${metrics.outstandingReceivables.toLocaleString()}
+          <strong className="number-mono" style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem', color: 'var(--warning)' }}>
+            ₹{metrics.outstandingReceivables.toLocaleString('en-IN')}
           </strong>
         </div>
 
-        <div className="card" style={{ padding: '1.25rem' }}>
+        <div className="card col-3">
           <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>ACCOUNTS PAYABLE</div>
-          <strong style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem', color: 'var(--primary)' }}>
-            ${metrics.outstandingPayables.toLocaleString()}
+          <strong className="number-mono" style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem', color: 'var(--primary)' }}>
+            ₹{metrics.outstandingPayables.toLocaleString('en-IN')}
           </strong>
         </div>
 
-        <div className="card" style={{ padding: '1.25rem' }}>
+        <div className="card col-3">
           <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>PORTFOLIO AVERAGE DSO</div>
-          <strong style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem', color: 'var(--success)' }}>
+          <strong className="number-mono" style={{ fontSize: '1.75rem', display: 'block', marginTop: '0.25rem', color: 'var(--success)' }}>
             {metrics.averageDso} Days
           </strong>
         </div>
@@ -241,8 +404,8 @@ export default function CommandCenter() {
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id as any)}
-            className={`btn ${activeTab === t.id ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            className={`btn ${activeTab === t.id ? 'btn-primary' : 'btn-secondary'} btn-sm`}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textTransform: 'none', borderRadius: '10px' }}
           >
             {t.icon}
             {t.label}
@@ -252,9 +415,9 @@ export default function CommandCenter() {
 
       {/* TAB CONTENT: Overview Hub */}
       {activeTab === 'hub' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
+        <div className="dashboard-grid">
           {/* Left: Alerts & Tasks */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="col-8" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Active alerts panel */}
             <div className="card" style={{ padding: '2rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -273,7 +436,7 @@ export default function CommandCenter() {
                   <div style={{ color: 'var(--warning)', marginTop: '0.15rem' }}><AlertTriangle size={18} /></div>
                   <div>
                     <strong>Reconciliation Anomaly Detected: GST portal mismatch</strong>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>Ledger records mismatch of $3,720 observed during GSTR-1 government audits comparison.</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>Ledger records mismatch observed during GSTR-1 government audits comparison.</p>
                   </div>
                 </div>
               </div>
@@ -289,12 +452,41 @@ export default function CommandCenter() {
                   tasks.map((task) => (
                     <div key={task.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
                       <div>
-                        <strong>{task.title}</strong>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{task.description || 'No description provided'}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <button 
+                            onClick={() => handleToggleTaskStatus(task.id, task.status)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              color: task.status === 'COMPLETED' ? 'var(--success)' : 'var(--muted)',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                            title={task.status === 'COMPLETED' ? 'Mark Open' : 'Mark Completed'}
+                          >
+                            <CheckCircle size={16} style={{ fill: task.status === 'COMPLETED' ? 'var(--success-bg)' : 'none' }} />
+                          </button>
+                          <strong style={{ textDecoration: task.status === 'COMPLETED' ? 'line-through' : 'none', color: task.status === 'COMPLETED' ? 'var(--muted)' : 'inherit' }}>
+                            {task.title}
+                          </strong>
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginLeft: '1.5rem' }}>{task.description || 'No description provided'}</p>
                       </div>
-                      <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>
-                        Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>
+                          Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}
+                        </span>
+                        <button 
+                          onClick={() => handleDeleteTask(task.id)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
+                          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--muted)'}
+                          title="Delete Task"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -303,10 +495,10 @@ export default function CommandCenter() {
           </div>
 
           {/* Right: Quick task assign */}
-          <div className="card" style={{ padding: '2rem', height: 'fit-content' }}>
+          <div className="card col-4" style={{ padding: '2rem', height: 'fit-content' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem' }}>Create Collaboration Task</h2>
             {taskMessage && (
-              <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem' }}>
+              <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem', width: '100%' }}>
                 {taskMessage}
               </div>
             )}
@@ -320,6 +512,7 @@ export default function CommandCenter() {
                   value={taskForm.title}
                   onChange={(e) => setTaskForm(prev => ({ ...prev, title: e.target.value }))}
                   className="form-input"
+                  style={{ borderRadius: '10px' }}
                 />
               </div>
               <div className="form-group">
@@ -329,6 +522,7 @@ export default function CommandCenter() {
                   value={taskForm.description}
                   onChange={(e) => setTaskForm(prev => ({ ...prev, description: e.target.value }))}
                   className="form-input"
+                  style={{ borderRadius: '10px' }}
                   rows={3}
                 />
               </div>
@@ -339,9 +533,10 @@ export default function CommandCenter() {
                   value={taskForm.dueDate}
                   onChange={(e) => setTaskForm(prev => ({ ...prev, dueDate: e.target.value }))}
                   className="form-input"
+                  style={{ borderRadius: '10px' }}
                 />
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', borderRadius: '10px', textTransform: 'none' }}>
                 Assign Task Ticket
               </button>
             </form>
@@ -352,19 +547,37 @@ export default function CommandCenter() {
       {/* TAB CONTENT: AI Explainability */}
       {activeTab === 'explain' && (
         <div className="card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Explainable AI (XAI) Model Reasoning</h2>
-            <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
-              Proventa AI transparency: review the weights, scoring components, and confidence levels backing decision models.
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Explainable AI (XAI) Model Reasoning</h2>
+              <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
+                Proventa AI transparency: review the weights, scoring components, and confidence levels backing decision models.
+              </p>
+            </div>
+
+            {/* Dynamic Target Selector */}
+            <div className="form-group" style={{ margin: 0, minWidth: '220px' }}>
+              <label className="form-label">Select Company Target</label>
+              <select
+                value={selectedCompanyId}
+                onChange={(e) => setSelectedCompanyId(e.target.value)}
+                className="form-input"
+                style={{ borderRadius: '10px', padding: '0.5rem 1rem' }}
+              >
+                <option value="default">Alpha Logistics Inc (Sample)</option>
+                {companies.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '2.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="dashboard-grid">
+            <div className="col-8" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
                 <strong>Active Credit Decision Target</strong>
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--primary)', marginTop: '0.25rem' }}>
-                  {explainCompany.name}
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.25rem' }}>
+                  {activeExplainability.name}
                 </div>
               </div>
 
@@ -372,8 +585,8 @@ export default function CommandCenter() {
               <div>
                 <strong>Contributing Score Factors</strong>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
-                  {explainCompany.factors.map((f, idx) => (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '0.85rem' }}>
+                  {activeExplainability.factors.map((f, idx) => (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem', background: 'var(--background)' }}>
                       <span>{f.name}</span>
                       <strong style={{ color: f.weight.startsWith('+') ? 'var(--success)' : 'var(--danger)' }}>
                         {f.weight}
@@ -384,12 +597,12 @@ export default function CommandCenter() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', borderLeft: '1px solid var(--border)', paddingLeft: '2.5rem' }}>
+            <div className="col-4" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {/* Confidence Meter */}
-              <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+              <div className="card" style={{ padding: '1.5rem', textAlign: 'center', background: 'var(--background)' }}>
                 <div style={{ color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 600 }}>MODEL CONFIDENCE SCORE</div>
-                <div style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit', marginTop: '0.5rem' }}>
-                  {explainCompany.confidence}%
+                <div style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.5rem' }}>
+                  {activeExplainability.confidence}%
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.5rem' }}>
                   Derived using 4 high-quality data feeds.
@@ -400,7 +613,7 @@ export default function CommandCenter() {
               <div>
                 <strong>Missing Data / Risk Warnings</strong>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}>
-                  {explainCompany.warnings.map((w, idx) => (
+                  {activeExplainability.warnings.map((w, idx) => (
                     <div key={idx} style={{ display: 'flex', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--muted)' }}>
                       <div style={{ color: 'var(--warning)', marginTop: '0.1rem' }}><AlertTriangle size={14} /></div>
                       <span>{w}</span>
@@ -415,13 +628,13 @@ export default function CommandCenter() {
 
       {/* TAB CONTENT: Workflow Designer */}
       {activeTab === 'workflows' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
+        <div className="dashboard-grid">
           
           {/* Rule config creation form */}
-          <div className="card" style={{ padding: '2rem', height: 'fit-content' }}>
+          <div className="card col-5" style={{ padding: '2rem', height: 'fit-content' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem' }}>Configure Automation Rule</h2>
             {workflowMessage && (
-              <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem' }}>
+              <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem', width: '100%' }}>
                 {workflowMessage}
               </div>
             )}
@@ -435,6 +648,7 @@ export default function CommandCenter() {
                   value={newWorkflow.name}
                   onChange={(e) => setNewWorkflow(prev => ({ ...prev, name: e.target.value }))}
                   className="form-input"
+                  style={{ borderRadius: '10px' }}
                 />
               </div>
               <div className="form-group">
@@ -443,6 +657,7 @@ export default function CommandCenter() {
                   value={newWorkflow.trigger}
                   onChange={(e) => setNewWorkflow(prev => ({ ...prev, trigger: e.target.value }))}
                   className="form-input"
+                  style={{ borderRadius: '10px' }}
                 >
                   <option value="PAYMENT_DELAYED">Payment Delayed (DSO Exceeded)</option>
                   <option value="NEW_INVOICE">New Customer Invoice Registered</option>
@@ -456,6 +671,7 @@ export default function CommandCenter() {
                   value={newWorkflow.action}
                   onChange={(e) => setNewWorkflow(prev => ({ ...prev, action: e.target.value }))}
                   className="form-input"
+                  style={{ borderRadius: '10px' }}
                 >
                   <option value="NOTIFY_USER">Send Slack/In-App Security Alert</option>
                   <option value="RUN_AI_ANALYSIS">Execute AI Credit Scoring Recalculation</option>
@@ -463,14 +679,14 @@ export default function CommandCenter() {
                   <option value="SEND_EMAIL">Dispatch Audit Escalation Email</option>
                 </select>
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', borderRadius: '10px', textTransform: 'none' }}>
                 Deploy Automation Rule
               </button>
             </form>
           </div>
 
           {/* Active workflow rules list */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="col-7" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="card" style={{ padding: '2rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.25rem' }}>Active Rule Mappings</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -481,7 +697,25 @@ export default function CommandCenter() {
                     <div key={wf.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <strong>{wf.name}</strong>
-                        <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>Active</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <button 
+                            onClick={() => handleRunWorkflow(wf.id)}
+                            className="btn btn-secondary btn-sm"
+                            style={{ padding: '0.25rem 0.6rem', textTransform: 'none', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}
+                            title="Run Trigger"
+                          >
+                            <Play size={12} /> Run
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteWorkflow(wf.id)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '0.25rem' }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--muted)'}
+                            title="Remove Rule"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
                         Trigger: {wf.trigger} | Action: {JSON.parse(wf.actions).type}
@@ -515,58 +749,77 @@ export default function CommandCenter() {
       {/* TAB CONTENT: Reconciliation Matching */}
       {activeTab === 'reconciliation' && (
         <div className="card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Financial Reconciliation Engine</h2>
               <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
                 Compare bank statements vs ledgers and tax registries. AI flags anomalies and outputs resolution parameters.
               </p>
             </div>
-            <button onClick={handleRunReconciliation} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button onClick={handleRunReconciliation} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderRadius: '10px', textTransform: 'none' }}>
               <Play size={14} />
               Run Reconciliation Audit
             </button>
           </div>
 
           {reconciliationMessage && (
-            <div className="badge badge-success" style={{ padding: '0.75rem', textAlign: 'center', display: 'block' }}>
+            <div className="badge badge-success" style={{ padding: '0.75rem', textAlign: 'center', display: 'block', width: '100%' }}>
               {reconciliationMessage}
             </div>
           )}
 
           {/* Reconciliation table */}
-          <div>
+          <div className="table-container">
             <strong style={{ fontSize: '1.1rem', display: 'block', marginBottom: '1rem' }}>Match Registry Logs</strong>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="data-table">
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', fontSize: '0.8rem', color: 'var(--muted)' }}>
-                  <th style={{ padding: '0.75rem' }}>Match Category</th>
-                  <th style={{ padding: '0.75rem' }}>Source Amt</th>
-                  <th style={{ padding: '0.75rem' }}>Target Amt</th>
-                  <th style={{ padding: '0.75rem' }}>Discrepancy</th>
-                  <th style={{ padding: '0.75rem' }}>Status</th>
-                  <th style={{ padding: '0.75rem' }}>AI Suggested Resolution</th>
+                <tr>
+                  <th>Match Category</th>
+                  <th>Source Amt</th>
+                  <th>Target Amt</th>
+                  <th>Discrepancy</th>
+                  <th>Status</th>
+                  <th>Action Outcome</th>
                 </tr>
               </thead>
               <tbody>
-                {reconciliationRecords.map((r) => (
-                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border)', fontSize: '0.85rem' }}>
-                    <td style={{ padding: '0.75rem', fontWeight: 600 }}>{r.type}</td>
-                    <td style={{ padding: '0.75rem' }}>${r.sourceAmount.toLocaleString()}</td>
-                    <td style={{ padding: '0.75rem' }}>${r.targetAmount.toLocaleString()}</td>
-                    <td style={{ padding: '0.75rem', color: r.difference > 0 ? 'var(--danger)' : 'inherit' }}>
-                      ${r.difference.toLocaleString()}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <span className={`badge ${r.status === 'MATCHED' ? 'badge-success' : 'badge-danger'}`}>
-                        {r.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem', color: 'var(--muted)', fontSize: '0.8rem' }}>
-                      {r.suggestedResolution || 'Perfect match alignment.'}
+                {reconciliationRecords.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted)' }}>
+                      No reconciliation audits run yet. Click Run Reconciliation Audit above to start.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  reconciliationRecords.map((r) => (
+                    <tr key={r.id}>
+                      <td style={{ fontWeight: 600 }}>{r.type.replace(/_/g, ' ')}</td>
+                      <td className="number-mono">₹{r.sourceAmount.toLocaleString('en-IN')}</td>
+                      <td className="number-mono">₹{r.targetAmount.toLocaleString('en-IN')}</td>
+                      <td className="number-mono" style={{ color: r.difference > 0 ? 'var(--danger)' : 'inherit' }}>
+                        ₹{r.difference.toLocaleString('en-IN')}
+                      </td>
+                      <td>
+                        <span className={`badge ${r.status === 'MATCHED' ? 'badge-success' : r.status === 'RESOLVED' ? 'badge-info' : 'badge-danger'}`}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{r.suggestedResolution || 'Perfect match alignment.'}</span>
+                          {r.status === 'ANOMALY' && (
+                            <button 
+                              onClick={() => handleResolveReconciliation(r.id)}
+                              className="btn btn-secondary btn-sm"
+                              style={{ alignSelf: 'flex-start', padding: '0.2rem 0.5rem', textTransform: 'none', fontSize: '0.7rem', borderRadius: '6px', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                            >
+                              <Check size={11} /> Resolve Discrepancy
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -575,10 +828,10 @@ export default function CommandCenter() {
 
       {/* TAB CONTENT: Data Governance */}
       {activeTab === 'governance' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '2.5rem' }}>
+        <div className="dashboard-grid">
           
           {/* Data warehouse inventory catalog */}
-          <div className="card" style={{ padding: '2rem' }}>
+          <div className="card col-7" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.25rem' }}>Data Warehouse Catalog</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {dataCatalog.map((cat, idx) => (
@@ -598,11 +851,11 @@ export default function CommandCenter() {
           </div>
 
           {/* Retention policies config */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="col-5" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="card" style={{ padding: '2rem' }}>
               <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem' }}>Update Retention Policy</h2>
               {governanceMessage && (
-                <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem' }}>
+                <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem', width: '100%' }}>
                   {governanceMessage}
                 </div>
               )}
@@ -613,6 +866,7 @@ export default function CommandCenter() {
                     value={governanceForm.category}
                     onChange={(e) => setGovernanceForm(prev => ({ ...prev, category: e.target.value }))}
                     className="form-input"
+                    style={{ borderRadius: '10px' }}
                   >
                     <option value="Financial Documents">Financial Documents Vault</option>
                     <option value="Session Track Logs">Session Track Logs</option>
@@ -625,6 +879,7 @@ export default function CommandCenter() {
                     value={governanceForm.duration}
                     onChange={(e) => setGovernanceForm(prev => ({ ...prev, duration: e.target.value }))}
                     className="form-input"
+                    style={{ borderRadius: '10px' }}
                   >
                     <option value="90 Days">90 Days</option>
                     <option value="3 Years">3 Years</option>
@@ -637,12 +892,13 @@ export default function CommandCenter() {
                     value={governanceForm.action}
                     onChange={(e) => setGovernanceForm(prev => ({ ...prev, action: e.target.value }))}
                     className="form-input"
+                    style={{ borderRadius: '10px' }}
                   >
                     <option value="ARCHIVE">Archive to Deep Cold Vault</option>
                     <option value="PURGE">Hard Purge and Delete</option>
                   </select>
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', borderRadius: '10px', textTransform: 'none' }}>
                   Save Policy Parameter
                 </button>
               </form>
@@ -669,16 +925,16 @@ export default function CommandCenter() {
       {activeTab === 'observability' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Performance Counters */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+          <div className="dashboard-grid">
             {[
               { label: 'API Gateway Latency', val: '24ms', desc: 'Average endpoints response cycle.' },
               { label: 'Ingestion Error Rate', val: '0.00%', desc: 'Failed API sync events count.' },
               { label: 'AI Processing Queue', val: '0 jobs', desc: 'Active scoring jobs waiting.' },
               { label: 'Db Transaction Load', val: '12ms', desc: 'Average SQLite query execution time.' }
             ].map((perf, idx) => (
-              <div key={idx} className="card" style={{ padding: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div key={idx} className="card col-3" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <strong style={{ fontSize: '0.85rem' }}>{perf.label}</strong>
-                <div style={{ fontSize: '2rem', fontFamily: 'Outfit', fontWeight: 800, color: 'var(--primary)', marginTop: '0.5rem' }}>
+                <div className="number-mono" style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--primary)', marginTop: '0.5rem' }}>
                   {perf.val}
                 </div>
                 <p style={{ fontSize: '0.75rem', color: 'var(--muted)', lineHeight: '1.4' }}>{perf.desc}</p>
