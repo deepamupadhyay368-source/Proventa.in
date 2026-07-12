@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
 import { 
-  Sparkles, 
   ArrowRight, 
   ShieldCheck, 
   Activity, 
@@ -13,14 +12,16 @@ import {
   Sun, 
   Moon, 
   TrendingUp, 
-  Scale, 
-  CheckCircle,
   Building,
   ChevronDown,
   Terminal,
-  Calculator,
-  Fingerprint,
-  Globe2
+  Scale,
+  CheckCircle,
+  HelpCircle,
+  FileSpreadsheet,
+  Workflow,
+  Sparkles,
+  Play
 } from 'lucide-react';
 
 export default function RootLandingPage() {
@@ -34,7 +35,13 @@ export default function RootLandingPage() {
   const [calcIndustry, setCalcIndustry] = useState('Logistics');
   const [calcRevenue, setCalcRevenue] = useState(12000000);
   const [calcLitigations, setCalcLitigations] = useState(0);
-  const [calcResult, setCalcResult] = useState<any>(null);
+  const [calcResult, setCalcResult] = useState<any>({
+    score: 782,
+    rating: 'AA',
+    risk: 12,
+    limit: 1800000,
+    terms: 'Net-30'
+  });
 
   // FAQ Accordion toggles
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -137,24 +144,18 @@ export default function RootLandingPage() {
       position: 'relative',
       overflowX: 'hidden'
     }}>
-      {/* Visual background grids */}
+      {/* Subtle Financial Node network background effect */}
       <div style={{
         position: 'absolute',
-        width: '800px',
-        height: '800px',
-        background: 'radial-gradient(circle, rgba(37,99,235,0.05) 0%, transparent 75%)',
-        top: '-20%',
-        left: '-20%',
-        zIndex: 0
-      }} />
-      <div style={{
-        position: 'absolute',
-        width: '800px',
-        height: '800px',
-        background: 'radial-gradient(circle, rgba(6,182,212,0.05) 0%, transparent 75%)',
-        bottom: '-10%',
-        right: '-20%',
-        zIndex: 0
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '600px',
+        opacity: 0.35,
+        backgroundImage: `radial-gradient(var(--border) 1px, transparent 1px), radial-gradient(rgba(37,99,235,0.03) 2px, transparent 2px)`,
+        backgroundSize: '30px 30px, 60px 60px',
+        zIndex: 0,
+        pointerEvents: 'none'
       }} />
 
       {/* Floating Theme Button */}
@@ -163,419 +164,501 @@ export default function RootLandingPage() {
         className="theme-switch"
         style={{
           position: 'fixed',
-          top: '20px',
-          right: '20px',
+          bottom: '25px',
+          right: '25px',
           background: 'var(--card)',
           border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          boxShadow: 'var(--shadow-sm)',
-          padding: '0.6rem',
-          zIndex: 1000
+          borderRadius: 'var(--radius-full)',
+          boxShadow: 'var(--shadow-lg)',
+          padding: '0.8rem',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
+        aria-label="Toggle Theme"
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
 
-      {/* Top Banner Header */}
-      <header className="top-nav" style={{ background: 'transparent', borderBottom: 'none', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
-        <div className="logo-container">
-          <div className="logo-icon">P</div>
-          PROVENTA
-        </div>
-        <div>
-          {auth ? (
-            <Link href="/dashboard" className="btn btn-primary btn-sm">
-              Enter Platform
-              <ArrowRight size={14} />
-            </Link>
-          ) : (
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <Link href="/login" className="btn btn-secondary btn-sm" style={{ fontWeight: 600 }}>
-                Sign In
+      {/* Sticky Header Navigation */}
+      <header className="top-nav" style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 500,
+        width: '100%',
+        maxWidth: '1440px',
+        margin: '0 auto',
+        height: '80px',
+        borderBottom: '1px solid var(--border)',
+        background: theme === 'dark' ? 'rgba(6, 10, 18, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(16px)',
+        padding: '0 3rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', width: '100%', justifyContent: 'space-between' }}>
+          <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
+            <div className="logo-icon" style={{ background: 'var(--primary)', color: '#ffffff', borderRadius: '8px' }}>P</div>
+            <span style={{ fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em', fontSize: '1.4rem' }}>PROVENTA</span>
+          </div>
+
+          {/* Desktop Navigation Menu Links */}
+          <nav className="desktop-only" style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--muted)' }}>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Solutions</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Industries</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Platform</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Pricing</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Resources</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">About</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Contact</span>
+          </nav>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {auth ? (
+              <Link href="/dashboard" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem' }}>
+                Go to Dashboard
+                <ArrowRight size={16} />
               </Link>
-              <Link href="/signup" className="btn btn-primary btn-sm" style={{ fontWeight: 600 }}>
-                Start Free Trial
-              </Link>
-            </div>
-          )}
+            ) : (
+              <>
+                <Link href="/login" style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', padding: '0.6rem 1.2rem' }}>
+                  Sign In
+                </Link>
+                <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem', background: 'var(--primary)' }}>
+                  Request Demo
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '6rem 1.5rem', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          background: 'rgba(37, 99, 235, 0.08)',
-          color: 'var(--primary)',
-          padding: '0.5rem 1.25rem',
-          borderRadius: 'var(--radius-full)',
-          fontSize: '0.85rem',
-          fontWeight: 700,
-          border: '1px solid rgba(37, 99, 235, 0.15)',
-          marginBottom: '2rem'
+      {/* Main Hero Container */}
+      <main style={{ flex: 1, zIndex: 10 }}>
+        {/* Full-width premium Hero Section */}
+        <section style={{
+          maxWidth: '1440px',
+          margin: '0 auto',
+          padding: '5rem 3rem 4rem 3rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(12, 1fr)',
+          gap: '3rem',
+          alignItems: 'center'
         }}>
-          <Sparkles size={14} />
-          Enterprise AI Credit Decision Engine
-        </div>
-
-        <h1 style={{
-          fontSize: '4rem',
-          fontFamily: 'Outfit, sans-serif',
-          fontWeight: 800,
-          lineHeight: '1.05',
-          letterSpacing: '-0.03em',
-          maxWidth: '900px',
-          margin: '0 auto 1.5rem auto'
-        }}>
-          Modern B2B Credit Intelligence & KYB Verification
-        </h1>
-
-        <p style={{
-          fontSize: '1.25rem',
-          color: 'var(--muted)',
-          lineHeight: '1.6',
-          maxWidth: '750px',
-          margin: '0 auto 3rem auto'
-        }}>
-          Proventa accelerates credit checks, automates trade finance approvals, and checks corporate tax and litigation registries.
-        </p>
-
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {auth ? (
-            <Link href="/dashboard" className="btn btn-primary" style={{ padding: '0.9rem 2.5rem', fontSize: '1rem', borderRadius: 'var(--radius-sm)' }}>
-              Open Dashboard Overview
-              <ArrowRight size={18} />
-            </Link>
-          ) : (
-            <>
-              <Link href="/signup" className="btn btn-primary" style={{ padding: '0.9rem 2.5rem', fontSize: '1rem', borderRadius: 'var(--radius-sm)' }}>
-                Start Risk Analysis
-                <ArrowRight size={18} />
-              </Link>
-              <Link href="/login/google" className="btn btn-secondary" style={{ padding: '0.9rem 2.5rem', fontSize: '1rem', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {/* Simulated Google colored G logo */}
-                <span style={{ fontWeight: 'bold', color: '#4285F4' }}>G</span> Sign up with Google
-              </Link>
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* Main Pillars Section: What does Proventa Do? */}
-      <section style={{ background: 'var(--card)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '5rem 1.5rem', zIndex: 1 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: '2.2rem', fontFamily: 'Outfit', fontWeight: 800 }}>Complete B2B Credit Assurance</h2>
-            <p style={{ color: 'var(--muted)', marginTop: '0.5rem', fontSize: '1.05rem' }}>Four integrated modules built for credit managers, insurers, and finance teams</p>
-          </div>
-
-          <div className="dashboard-grid">
-            {/* Pillar 1: AI Credit Scoring */}
-            <div className="card col-3" style={{ padding: '2rem' }}>
-              <div style={{ width: '48px', height: '48px', background: 'rgba(37, 99, 235, 0.08)', color: 'var(--primary)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifySelf: 'start', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                <TrendingUp size={24} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit', fontWeight: 700, marginBottom: '0.75rem' }}>AI Credit Scoring</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: '1.6' }}>
-                Generates a credit score (300-900) based on operational liquidity, debt-to-equity leverage, headcount capacity, and payment delays history.
-              </p>
+          {/* Left Column Text */}
+          <div style={{ gridColumn: 'span 7' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '100px', padding: '0.35rem 1rem', color: 'var(--info)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '1.5rem' }}>
+              <Sparkles size={14} />
+              <span>Next-Gen Enterprise Credit Automation</span>
             </div>
+            
+            <h1 style={{
+              fontSize: '3.6rem',
+              lineHeight: '1.15',
+              fontWeight: 800,
+              color: 'var(--primary)',
+              letterSpacing: '-0.03em',
+              marginBottom: '1.5rem'
+            }}>
+              AI Credit Intelligence for Modern Businesses
+            </h1>
 
-            {/* Pillar 2: Corporate KYB verification */}
-            <div className="card col-3" style={{ padding: '2rem' }}>
-              <div style={{ width: '48px', height: '48px', background: 'rgba(6, 182, 212, 0.08)', color: 'var(--info)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifySelf: 'start', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                <Building size={24} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit', fontWeight: 700, marginBottom: '0.75rem' }}>KYB Registries Verification</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: '1.6' }}>
-                Instant confirmation of business legal standing, active directors, incorporation dates, and tax identifications including **CIN**, **GSTIN**, and **PAN**.
-              </p>
-            </div>
-
-            {/* Pillar 3: Court Disputes Monitor */}
-            <div className="card col-3" style={{ padding: '2rem' }}>
-              <div style={{ width: '48px', height: '48px', background: 'rgba(239, 68, 68, 0.08)', color: 'var(--danger)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifySelf: 'start', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                <Scale size={24} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit', fontWeight: 700, marginBottom: '0.75rem' }}>Litigation Scanning</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: '1.6' }}>
-                Automated sweeps across district and state tribunals to scan for outstanding civil claims, insolvency filings, or regulatory warning indicators.
-              </p>
-            </div>
-
-            {/* Pillar 4: Developer Rest API */}
-            <div className="card col-3" style={{ padding: '2rem' }}>
-              <div style={{ width: '48px', height: '48px', background: 'rgba(16, 185, 129, 0.08)', color: 'var(--success)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifySelf: 'start', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                <KeyRound size={24} />
-              </div>
-              <h3 style={{ fontSize: '1.25rem', fontFamily: 'Outfit', fontWeight: 700, marginBottom: '0.75rem' }}>API Integrations</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--muted)', lineHeight: '1.6' }}>
-                Integrate automated credit decision limits and trade approvals directly into your **SAP**, **Oracle NetSuite**, or **QuickBooks** ERP engines.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Sandbox Simulator / ROI Calculator */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '6rem 1.5rem', zIndex: 1 }}>
-        <div className="dashboard-grid" style={{ alignItems: 'center' }}>
-          {/* Left Text */}
-          <div className="col-6" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--primary)', fontWeight: 700, fontSize: '0.9rem' }}>
-              <Calculator size={18} />
-              <span>INTERACTIVE SANDBOX</span>
-            </div>
-            <h2 style={{ fontSize: '2.5rem', fontFamily: 'Outfit', fontWeight: 800, lineHeight: 1.1 }}>
-              Test Proventa's AI Scoring Formula Instantly
-            </h2>
-            <p style={{ color: 'var(--muted)', lineHeight: '1.6', fontSize: '1.05rem' }}>
-              Enter a counterparty's annual revenue turnover and known court disputes to see how the system calculates credit scores, determines grades, and advises on recommended trade finance limits.
+            <p style={{
+              fontSize: '1.2rem',
+              lineHeight: '1.6',
+              color: 'var(--muted)',
+              marginBottom: '2.5rem',
+              maxWidth: '600px'
+            }}>
+              Transform financial data into actionable credit decisions with AI-powered risk analysis, cash flow intelligence, financial insights, and enterprise automation.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <CheckCircle size={16} style={{ color: 'var(--success)' }} />
-                <span>Transparent mathematical logic mapping.</span>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <CheckCircle size={16} style={{ color: 'var(--success)' }} />
-                <span>Adjusts multiplier coefficients by risk.</span>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <CheckCircle size={16} style={{ color: 'var(--success)' }} />
-                <span>Zero placeholders. Full operational sandbox.</span>
-              </div>
+
+            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+              <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '14px', padding: '1rem 2.25rem', fontSize: '1rem', background: 'var(--primary)' }}>
+                Request Demo
+                <ArrowRight size={16} />
+              </Link>
+              
+              <button className="btn btn-secondary" style={{
+                textTransform: 'none',
+                borderRadius: '14px',
+                padding: '1rem 2.25rem',
+                fontSize: '1rem',
+                background: 'transparent',
+                borderColor: 'var(--border)',
+                color: 'var(--foreground)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <Play size={16} style={{ fill: 'currentColor' }} />
+                <span>Watch Platform</span>
+              </button>
             </div>
           </div>
 
-          {/* Right Interactive Form and Dial */}
-          <div className="col-6">
-            <div className="card" style={{ padding: '2.5rem' }}>
-              <form onSubmit={runInteractiveCalculator} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Company Name</label>
-                    <input type="text" className="form-input" value={calcName} onChange={(e) => setCalcName(e.target.value)} />
+          {/* Right Column: Premium Dashboard Floating Mockup */}
+          <div style={{ gridColumn: 'span 5', position: 'relative' }}>
+            <div className="card" style={{
+              borderRadius: '20px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-xl)',
+              background: 'var(--card)',
+              padding: '2rem',
+              overflow: 'hidden'
+            }}>
+              {/* Mockup Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+                <div>
+                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.05em' }}>Counterparty Assessment</div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--primary)' }}>{calcName}</h3>
+                </div>
+                <span className="badge badge-success" style={{ padding: '0.3rem 0.8rem', borderRadius: '8px' }}>Active</span>
+              </div>
+
+              {/* KPI Score Widgets */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Credit Health Score</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                    <span className="number-mono" style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary)' }}>{calcResult.score}</span>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>/900</span>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Industry Classification</label>
-                    <select className="form-input" value={calcIndustry} onChange={(e) => setCalcIndustry(e.target.value)}>
-                      <option value="Logistics">Logistics</option>
-                      <option value="Technology">Technology</option>
-                      <option value="Manufacturing">Manufacturing</option>
-                      <option value="Wholesale Trade">Wholesale Trade</option>
-                    </select>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                    <span style={{ display: 'inline-block', width: '6px', height: '6px', background: 'var(--success)', borderRadius: '50%' }}></span>
+                    <span>Excellent Standing</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Annual Revenue (USD)</label>
-                    <input type="number" className="form-input" value={calcRevenue} onChange={(e) => setCalcRevenue(Number(e.target.value))} />
+                <div style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Risk Assessment</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--secondary)' }}>{calcResult.rating}</span>
+                    <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>Low Risk</span>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Court Lawsuits / Disputes</label>
-                    <input type="number" min={0} className="form-input" value={calcLitigations} onChange={(e) => setCalcLitigations(Number(e.target.value))} />
+                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                    Index probability of default: <strong className="number-mono">{calcResult.risk}%</strong>
                   </div>
                 </div>
+              </div>
 
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                  Compute Risk Score
+              {/* Cash Flow Limit Metrics */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem', background: 'var(--background)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--muted)' }}>Recommended Credit Limit</span>
+                  <span className="number-mono" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)' }}>₹{(calcResult.limit / 100000).toFixed(1)} L</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--muted)' }}>Payment Terms</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)' }}>{calcResult.terms}</span>
+                </div>
+              </div>
+
+              {/* AI Recommendations Panel */}
+              <div style={{ background: 'rgba(37,99,235,0.03)', border: '1px dashed var(--info-border)', borderRadius: '12px', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
+                <Activity size={18} style={{ color: 'var(--info)', flexShrink: 0, marginTop: '0.15rem' }} />
+                <div>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.25rem' }}>AI Insight Guidance</h4>
+                  <p style={{ fontSize: '0.775rem', color: 'var(--muted)', lineHeight: '1.5' }}>
+                    Entity exhibits high cash flow margins and low litigation exposure. Trade limit recommendation adjusted to ₹{(calcResult.limit).toLocaleString('en-IN')} withNet terms.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Brand Trust Indicator Banner Section */}
+        <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--card)', padding: '2.5rem 0' }}>
+          <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 3rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '2rem' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted)' }}>Trusted By Enterprise Risk Officers In</span>
+            <div style={{ display: 'flex', gap: '3rem', alignItems: 'center', flexWrap: 'wrap', filter: 'grayscale(1) opacity(0.6)' }} className="logo-filter">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> BANKS</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> NBFCs</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> DISTRIBUTORS</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> EXPORTERS</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> MANUFACTURERS</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Interactive Credit Assessment Tool Module */}
+        <section style={{ maxWidth: '1440px', margin: '0 auto', padding: '6rem 3rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+              Run an Instant Credit Assessment
+            </h2>
+            <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
+              Simulate the credit decision engine workflow directly. Enter company details to calculate risk.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '3rem', alignItems: 'start' }}>
+            {/* Input Form Card */}
+            <div className="card" style={{ gridColumn: 'span 6', background: 'var(--card)', padding: '2.5rem' }}>
+              <form onSubmit={runInteractiveCalculator}>
+                <div className="form-group">
+                  <label className="form-label">Company Name</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={calcName} 
+                    onChange={e => setCalcName(e.target.value)} 
+                    required
+                    style={{ borderRadius: '12px' }}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Industry Classification</label>
+                  <select 
+                    className="form-input" 
+                    value={calcIndustry} 
+                    onChange={e => setCalcIndustry(e.target.value)}
+                    style={{ borderRadius: '12px' }}
+                  >
+                    <option value="Logistics">Logistics & Supply Chain</option>
+                    <option value="Manufacturing">Heavy Manufacturing</option>
+                    <option value="Distributor">Wholesale Distribution</option>
+                    <option value="Technology">SaaS & Technology</option>
+                    <option value="Retail">E-commerce & Retail</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Annual Turnover (₹)</label>
+                  <select 
+                    className="form-input" 
+                    value={calcRevenue} 
+                    onChange={e => setCalcRevenue(Number(e.target.value))}
+                    style={{ borderRadius: '12px' }}
+                  >
+                    <option value={5000000}>₹50 Lakhs</option>
+                    <option value={12000000}>₹1.2 Crores</option>
+                    <option value={60000000}>₹6 Crores</option>
+                    <option value={200000000}>₹20 Crores</option>
+                    <option value={1000000000}>₹100 Crores</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Active Civil Litigations / Disputes</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    min="0" 
+                    max="20" 
+                    value={calcLitigations} 
+                    onChange={e => setCalcLitigations(Number(e.target.value))}
+                    style={{ borderRadius: '12px' }}
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="btn btn-primary" 
+                  style={{ width: '100%', textTransform: 'none', borderRadius: '12px', padding: '1rem', marginTop: '1rem', background: 'var(--primary)' }}
+                >
+                  Analyze Risk Matrix
                 </button>
               </form>
+            </div>
 
-              {/* Calculator Output */}
-              {calcResult && (
-                <div className="animate-fade-in" style={{
-                  marginTop: '2rem',
-                  paddingTop: '1.5rem',
-                  borderTop: '1px solid var(--border)',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '1.5rem',
-                  alignItems: 'center'
-                }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--background)', padding: '1.25rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>Calculated Score</span>
-                    <span style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)' }}>{calcResult.score}</span>
-                    <span className="badge badge-success" style={{
-                      marginTop: '0.25rem',
-                      background: calcResult.score > 700 ? 'var(--success-bg)' : calcResult.score > 600 ? 'var(--warning-bg)' : 'var(--danger-bg)',
-                      color: calcResult.score > 700 ? 'var(--success)' : calcResult.score > 600 ? 'var(--warning)' : 'var(--danger)'
-                    }}>
-                      Rating: {calcResult.rating}
-                    </span>
+            {/* Assessment Score Results Output View */}
+            <div style={{ gridColumn: 'span 6', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div className="card" style={{ background: 'var(--card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1.5rem' }}>Automated Analysis Result</h3>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+                  <div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Calculated Credit Rating</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--secondary)' }}>{calcResult.rating}</span>
+                      <span className="badge badge-success" style={{ background: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success-border)', fontSize: '0.7rem' }}>
+                        Low Risk
+                      </span>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block' }}>Risk Factor:</span>
-                      <strong>{calcResult.risk}% Default Prob</strong>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block' }}>Recommended Limit:</span>
-                      <strong style={{ color: 'var(--success)' }}>${calcResult.limit.toLocaleString()}</strong>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block' }}>Standard Terms:</span>
-                      <strong>{calcResult.terms} Account</strong>
+                  <div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Score Metrics</div>
+                    <div style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--primary)' }} className="number-mono">
+                      {calcResult.score}
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Trust & Zero Trust compliance specifications */}
-      <section style={{ background: 'var(--card)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '5rem 1.5rem', zIndex: 1 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '2.2rem', fontFamily: 'Outfit', fontWeight: 800 }}>SOC 2 Compliance & Security Layer</h2>
-            <p style={{ color: 'var(--muted)', marginTop: '0.5rem', fontSize: '1.05rem' }}>Zero Trust isolation patterns protecting critical corporate financial profiles</p>
-          </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem', marginBottom: '2rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--muted)', fontWeight: 500 }}>Empirical Default Probability:</span>
+                    <strong className="number-mono" style={{ color: 'var(--primary)' }}>{calcResult.risk}%</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--muted)', fontWeight: 500 }}>Approved Exposure Limit:</span>
+                    <strong className="number-mono" style={{ color: 'var(--primary)' }}>₹{(calcResult.limit).toLocaleString('en-IN')}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--muted)', fontWeight: 500 }}>Optimal Invoice Terms:</span>
+                    <strong style={{ color: 'var(--primary)' }}>{calcResult.terms}</strong>
+                  </div>
+                </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <ShieldCheck size={28} style={{ color: 'var(--success)', flexShrink: 0 }} />
-              <div>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Data Encryption</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.35rem', lineHeight: '1.5' }}>
-                  All uploaded registry certificates and balance sheet records are stored inside AES-256 standard vaults.
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Fingerprint size={28} style={{ color: 'var(--primary)', flexShrink: 0 }} />
-              <div>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>SSO & RBAC Permissions</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.35rem', lineHeight: '1.5' }}>
-                  Role-based checks restrict auditor access. Single Sign-on integration secures logins via corporate Google profiles.
-                </p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Activity size={28} style={{ color: 'var(--info)', flexShrink: 0 }} />
-              <div>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Immutable Activity Logs</h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.35rem', lineHeight: '1.5' }}>
-                  Every API key execution, subscription upgrade, or company audit leaves an immutable, non-deletable audit log.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Comparison Plan */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto', padding: '6rem 1.5rem', zIndex: 1 }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '2.2rem', fontFamily: 'Outfit', fontWeight: 800 }}>Simple, Scalable Licensing</h2>
-          <p style={{ color: 'var(--muted)', marginTop: '0.5rem', fontSize: '1.05rem' }}>Select the correct capacity threshold for your finance board</p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
-          {[
-            { name: 'Developer Free', price: '$0', desc: 'Best for local testing. Access up to 5 credit evaluations and sandbox APIs.', link: '/signup' },
-            { name: 'Enterprise Pro', price: '$499', desc: 'Up to 100 counterparties. Includes daily litigation sweeps and unlimited API tokens.', link: '/signup' },
-            { name: 'Unlimited Scale', price: '$2,499', desc: 'Unlimited counterparty portfolios, custom risk parameters, and dedicated support.', link: '/signup' },
-          ].map((plan, pidx) => (
-            <div key={pidx} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '2rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.3rem', fontFamily: 'Outfit', fontWeight: 700 }}>{plan.name}</h3>
-                <div style={{ fontSize: '2.2rem', fontWeight: 800, marginTop: '0.5rem', color: 'var(--primary)' }}>
-                  {plan.price} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--muted)' }}>/ month</span>
+                <div style={{ display: 'flex', gap: '0.75rem', background: 'var(--background)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <ShieldCheck size={18} style={{ color: 'var(--success)', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: '1.4' }}>
+                    This company has been successfully logged inside the credit intelligence system. You can generate a comprehensive PDF Credit Report by onboarding this account inside the portal.
+                  </span>
                 </div>
               </div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5', flex: 1 }}>{plan.desc}</p>
-              <Link href={plan.link} className="btn btn-primary btn-sm" style={{ width: '100%' }}>
-                Get Started
-              </Link>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* FAQ Accordion Section */}
-      <section style={{ background: 'var(--card)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '5rem 1.5rem', zIndex: 1 }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '2.2rem', fontFamily: 'Outfit', fontWeight: 800 }}>Frequently Asked Questions</h2>
-            <p style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Common questions about corporate credits checks and registries access</p>
+        {/* Feature Grid Pillars Section */}
+        <section style={{ background: 'var(--background)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '6rem 3rem' }}>
+          <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem' }}>
+                End-to-End Enterprise credit Command Center
+              </h2>
+              <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
+                Automate due diligence checks and credit rating calculations using multi-source digital endpoints.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem' }}>
+              <div className="card" style={{ gridColumn: 'span 4', padding: '2rem' }}>
+                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
+                  <FileSpreadsheet size={22} />
+                </div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>AI Data Lake & Warehouse</h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5' }}>
+                  Centralize raw financial statements, tax records, and bank data. Leverage version-controlled feature stores optimized for algorithmic trade credit assessment.
+                </p>
+              </div>
+
+              <div className="card" style={{ gridColumn: 'span 4', padding: '2rem' }}>
+                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
+                  <Scale size={22} />
+                </div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>Enterprise Data Governance</h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5' }}>
+                  Assign data stewards, classify sensitive documents, configure key rotation policies, and manage approval workflows for exposure overrides securely.
+                </p>
+              </div>
+
+              <div className="card" style={{ gridColumn: 'span 4', padding: '2rem' }}>
+                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
+                  <Workflow size={22} />
+                </div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>AI Automation Engines</h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5' }}>
+                  Automate notifications and workflows using event triggers. Let Proventa automatically message collections agents or warn of risk fluctuations.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Accordion Section */}
+        <section style={{ maxWidth: '1440px', margin: '0 auto', padding: '6rem 3rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem' }}>
+              Frequently Asked Questions
+            </h2>
+            <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>
+              Everything you need to know about the platform security and architecture.
+            </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {faqItems.map((faq, idx) => {
-              const isOpen = activeFaq === idx;
-              return (
-                <div 
-                  key={idx} 
-                  style={{
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'var(--background)',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <button 
-                    onClick={() => setActiveFaq(isOpen ? null : idx)}
-                    style={{
-                      width: '100%',
-                      padding: '1.25rem 1.5rem',
-                      background: 'none',
-                      border: 'none',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      color: 'var(--foreground)'
-                    }}
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronDown size={18} style={{
-                      transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {faqItems.map((item, idx) => (
+              <div 
+                key={idx} 
+                className="card" 
+                style={{ 
+                  padding: '1.5rem', 
+                  cursor: 'pointer', 
+                  borderColor: activeFaq === idx ? 'var(--primary)' : 'var(--border)',
+                  background: 'var(--card)'
+                }}
+                onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{item.q}</h3>
+                  <ChevronDown 
+                    size={16} 
+                    style={{ 
+                      transform: activeFaq === idx ? 'rotate(180deg)' : 'rotate(0deg)', 
                       transition: 'transform 0.2s',
                       color: 'var(--muted)'
-                    }} />
-                  </button>
-                  {isOpen && (
-                    <div style={{
-                      padding: '0 1.5rem 1.25rem 1.5rem',
-                      fontSize: '0.9rem',
-                      color: 'var(--muted)',
-                      lineHeight: '1.6'
-                    }}>
-                      {faq.a}
-                    </div>
-                  )}
+                    }} 
+                  />
                 </div>
-              );
-            })}
+                {activeFaq === idx && (
+                  <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginTop: '1rem', lineHeight: '1.6' }}>
+                    {item.a}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* Premium B2B Footer */}
+      <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--card)', padding: '4rem 3rem' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '3rem', marginBottom: '3rem' }}>
+          <div style={{ gridColumn: 'span 4' }}>
+            <div className="logo-container" style={{ marginBottom: '1.5rem' }}>
+              <div className="logo-icon" style={{ background: 'var(--primary)', color: 'white', borderRadius: '8px' }}>P</div>
+              <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.3rem' }}>PROVENTA</span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', lineHeight: '1.6', marginBottom: '1rem' }}>
+              Proventa is a complete AI Credit Intelligence and risk decisioning platform for financial institutions and modern enterprise finance teams.
+            </p>
+            <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>© {new Date().getFullYear()} Proventa. All rights reserved.</span>
+          </div>
+
+          <div style={{ gridColumn: 'span 2' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Solutions</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
+              <span>Credit Intelligence</span>
+              <span>Risk Management</span>
+              <span>Cash Flow Analytics</span>
+              <span>Compliance Scan</span>
+            </div>
+          </div>
+
+          <div style={{ gridColumn: 'span 2' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Industries</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
+              <span>Banking & NBFCs</span>
+              <span>Manufacturers</span>
+              <span>Exporters</span>
+              <span>SMEs & Fintechs</span>
+            </div>
+          </div>
+
+          <div style={{ gridColumn: 'span 2' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Developer APIs</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
+              <span>API Reference</span>
+              <span>System Status</span>
+              <span>Key Rotation</span>
+              <span>SDK Integrations</span>
+            </div>
+          </div>
+
+          <div style={{ gridColumn: 'span 2' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.25rem', letterSpacing: '0.05em' }}>Security</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
+              <span>Privacy Policy</span>
+              <span>Security Center</span>
+              <span>SOC 2 Compliance</span>
+              <span>Terms of Service</span>
+            </div>
           </div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer style={{
-        textAlign: 'center',
-        padding: '3rem 1.5rem',
-        borderTop: '1px solid var(--border)',
-        fontSize: '0.85rem',
-        color: 'var(--muted)',
-        zIndex: 1,
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%'
-      }}>
-        © {new Date().getFullYear()} Proventa Systems Inc. Grounded in SOC-2 zero trust security standards.
       </footer>
     </div>
   );

@@ -1,25 +1,28 @@
 /* Import modern typeface */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Tech Light Theme (Professional Slate & Cyber Indigo) */
-  --font-sans: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
+  /* Premium B2B Enterprise Light Theme */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Manrope', sans-serif;
+  --font-mono: 'IBM Plex Sans', monospace;
   
-  --background: #f1f5f9;
-  --foreground: #0f172a;
+  --background: #f8fafc;
+  --foreground: #111827;
   
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #111827;
   
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-rgb: 79, 70, 229;
+  --primary: #0B1F3A; /* Deep Navy */
+  --primary-hover: #1e3a60;
+  --primary-rgb: 11, 31, 58;
   
-  --secondary: #e2e8f0;
-  --secondary-foreground: #334155;
+  --secondary: #2563EB; /* Enterprise Blue */
+  --secondary-hover: #1d4ed8;
+  --secondary-foreground: #ffffff;
   
-  --muted: #64748b;
-  --border: #cbd5e1;
+  --muted: #6b7280;
+  --border: #e2e8f0;
   --input: #ffffff;
   
   --success: #10b981;
@@ -34,63 +37,42 @@
   --danger-bg: #fef2f2;
   --danger-border: #fca5a5;
   
-  --info: #06b6d4;
-  --info-bg: #ecfeff;
-  --info-border: #a5f3fc;
+  --info: #2563EB;
+  --info-bg: #eff6ff;
+  --info-border: #bfdbfe;
   
-  --shadow-sm: 0 2px 8px -2px rgba(79, 70, 229, 0.08);
-  --shadow-md: 0 10px 25px -5px rgba(79, 70, 229, 0.1), 0 8px 16px -6px rgba(79, 70, 229, 0.08);
-  --shadow-lg: 0 20px 35px -5px rgba(79, 70, 229, 0.12);
-  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px 0 rgba(11, 31, 58, 0.05);
+  --shadow-md: 0 4px 20px -2px rgba(11, 31, 58, 0.05), 0 2px 8px -2px rgba(11, 31, 58, 0.04);
+  --shadow-lg: 0 12px 30px -4px rgba(11, 31, 58, 0.06), 0 4px 12px -2px rgba(11, 31, 58, 0.04);
+  --shadow-xl: 0 20px 40px -6px rgba(11, 31, 58, 0.08);
   
-  --radius: 14px;
-  --radius-sm: 8px;
+  --radius: 16px;
+  --radius-sm: 10px;
   --radius-lg: 20px;
   --radius-full: 9999px;
   
-  --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-normal: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme="dark"] {
-  /* Futuristic Space Tech Theme */
-  --background: #060913;
-  --foreground: #f8fafc;
+  /* Sophisticated Dark Mode matching CFO Command Cockpit */
+  --background: #060a12;
+  --foreground: #f9fafb;
   
-  --card: #0b0f1d;
-  --card-foreground: #f8fafc;
+  --card: #0c111e;
+  --card-foreground: #f9fafb;
   
-  --primary: #6366f1;
-  --primary-hover: #818cf8;
-  --primary-rgb: 99, 102, 241;
+  --primary: #2563eb;
+  --primary-hover: #3b82f6;
+  --primary-rgb: 37, 99, 235;
   
-  --secondary: #12182c;
+  --secondary: #121824;
   --secondary-foreground: #cbd5e1;
   
-  --muted: #94a3b8;
+  --muted: #9ca3af;
   --border: #1e293b;
-  --input: #0c1020;
-  
-  --success: #10b981;
-  --success-bg: rgba(16, 185, 129, 0.08);
-  --success-border: rgba(16, 185, 129, 0.18);
-  
-  --warning: #f59e0b;
-  --warning-bg: rgba(245, 158, 11, 0.08);
-  --warning-border: rgba(245, 158, 11, 0.18);
-  
-  --danger: #f43f5e;
-  --danger-bg: rgba(244, 63, 94, 0.08);
-  --danger-border: rgba(244, 63, 94, 0.18);
-  
-  --info: #06b6d4;
-  --info-bg: rgba(6, 182, 212, 0.08);
-  --info-border: rgba(6, 182, 212, 0.18);
-  
-  --shadow-sm: 0 4px 15px -3px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.8);
-  --shadow-xl: 0 30px 60px -20px rgba(0, 0, 0, 0.9);
+  --input: #0b0f19;
 }
 
 /* CSS Reset & Defaults */
@@ -112,6 +94,13 @@ html, body {
   min-height: 100vh;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -119,6 +108,12 @@ a {
 
 button {
   font-family: inherit;
+}
+
+/* Monospace Numbers matching JetBrains / IBM Plex Sans font specs */
+.number-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 input, select, textarea {
@@ -407,7 +402,7 @@ input, select, textarea {
   font-weight: 900;
   font-size: 1.5rem;
   color: var(--primary);
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-heading);
   letter-spacing: -0.03em;
 }
 
