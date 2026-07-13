@@ -331,33 +331,7 @@ export default function RootLandingPage() {
 
           {/* Right Column: Premium Dashboard Floating Mockup & Video */}
           <div className="hero-visual-col" style={{ position: 'relative' }}>
-            {/* Demo Video Embedded directly in the hero */}
-            <div className="card" style={{
-              borderRadius: '20px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow-xl)',
-              background: 'var(--card)',
-              overflow: 'hidden',
-              marginBottom: '2rem',
-              position: 'relative',
-              paddingBottom: '56.25%', /* 16:9 aspect ratio */
-              height: 0
-            }}>
-              <iframe 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ" 
-                title="Proventa SME AI Credit Intelligence Demo"
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowFullScreen
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%'
-                }}
-              ></iframe>
-            </div>
+
 
             <div className="card" style={{
               borderRadius: '20px',
