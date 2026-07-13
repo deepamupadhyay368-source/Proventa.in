@@ -361,7 +361,7 @@ export default function RootLandingPage() {
               marginBottom: '1.5rem',
               fontFamily: 'Outfit, sans-serif'
             }}>
-              Know who to trust before you sell.
+              Create your enterprise developer portal & credit engine
             </h1>
 
             <p style={{
