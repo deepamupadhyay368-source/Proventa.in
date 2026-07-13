@@ -244,13 +244,13 @@ export default function RootLandingPage() {
 
           {/* Desktop Navigation Menu Links */}
           <nav className="desktop-only" style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--muted)' }}>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Solutions</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Industries</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Platform</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Pricing</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Resources</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">About</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover">Contact</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Solutions', desc: 'Enterprise-grade credit scoring for trade counterparties.', ctaText: 'Launch Assessment', link: '/login' })}>Solutions</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Industries', desc: 'Banking, NBFCs, Manufacturers, Exporters and SMEs.', ctaText: 'View Industries', link: '/waitlist' })}>Industries</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Platform', desc: 'End-to-End Enterprise credit Command Center.', ctaText: 'Explore Platform', link: '/login' })}>Platform</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Pricing', desc: 'Flexible plans scaling with your API calls and user volume.', ctaText: 'View Pricing', link: '/waitlist' })}>Pricing</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Resources', desc: 'Case studies, API documentation, and industry whitepapers.', ctaText: 'Read Docs', link: '/login' })}>Resources</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'About', desc: 'Proventa is building the future of automated credit intelligence.', ctaText: 'Our Story', link: '/waitlist' })}>About</span>
+            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Contact', desc: 'Get in touch with our enterprise sales and support teams.', ctaText: 'Contact Us', link: '/book-demo' })}>Contact</span>
           </nav>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -329,8 +329,36 @@ export default function RootLandingPage() {
             </div>
           </div>
 
-          {/* Right Column: Premium Dashboard Floating Mockup */}
+          {/* Right Column: Premium Dashboard Floating Mockup & Video */}
           <div className="hero-visual-col" style={{ position: 'relative' }}>
+            {/* Demo Video Embedded directly in the hero */}
+            <div className="card" style={{
+              borderRadius: '20px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-xl)',
+              background: 'var(--card)',
+              overflow: 'hidden',
+              marginBottom: '2rem',
+              position: 'relative',
+              paddingBottom: '56.25%', /* 16:9 aspect ratio */
+              height: 0
+            }}>
+              <iframe 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ" 
+                title="Proventa SME AI Credit Intelligence Demo"
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%'
+                }}
+              ></iframe>
+            </div>
+
             <div className="card" style={{
               borderRadius: '20px',
               border: '1px solid var(--border)',
@@ -912,6 +940,44 @@ export default function RootLandingPage() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Detail Modal for Footer / Navigation Links */}
+      {modalDetail && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div className="card animate-fade-in" style={{
+            background: 'var(--card)',
+            padding: '2rem',
+            borderRadius: '16px',
+            maxWidth: '450px',
+            width: '100%',
+            position: 'relative'
+          }}>
+            <button 
+              onClick={() => setModalDetail(null)}
+              style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}
+            >
+              <X size={20} />
+            </button>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem' }}>{modalDetail.title}</h3>
+            <p style={{ fontSize: '1rem', color: 'var(--muted)', lineHeight: '1.6', marginBottom: '2rem' }}>{modalDetail.desc}</p>
+            <Link href={modalDetail.link} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              {modalDetail.ctaText}
+            </Link>
           </div>
         </div>
       )}
