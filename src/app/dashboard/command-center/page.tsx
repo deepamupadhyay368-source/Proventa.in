@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 export default function CommandCenter() {
-  const [activeTab, setActiveTab] = useState<'hub' | 'explain' | 'workflows' | 'reconciliation' | 'governance' | 'observability'>('hub');
+  const [activeTab, setActiveTab] = useState<'hub' | 'explain' | 'workflows' | 'reconciliation' | 'governance' | 'observability' | 'datalake'>('hub');
   
   // Dashboard Metrics
   const [metrics, setMetrics] = useState({
@@ -29,6 +29,7 @@ export default function CommandCenter() {
   const [reconciliationAnomalies, setReconciliationAnomalies] = useState<any[]>([]);
   const [dataCatalog, setDataCatalog] = useState<any[]>([]);
   const [retentionPolicies, setRetentionPolicies] = useState<any[]>([]);
+  const [dataLakeSources, setDataLakeSources] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('default');
@@ -41,6 +42,8 @@ export default function CommandCenter() {
   const [taskMessage, setTaskMessage] = useState('');
   const [governanceForm, setGovernanceForm] = useState({ category: 'Financial Documents', duration: '7 Years', action: 'ARCHIVE' });
   const [governanceMessage, setGovernanceMessage] = useState('');
+  const [dataLakeForm, setDataLakeForm] = useState({ name: '', sourceType: 'API_SYNC', dataType: 'FINANCIAL_STATEMENT', fileSize: 0, recordsCount: 0 });
+  const [dataLakeMessage, setDataLakeMessage] = useState('');
 
   // Default AI Explainability state
   const defaultExplainCompany = {
@@ -66,6 +69,7 @@ export default function CommandCenter() {
     fetchGovernance();
     fetchTasks();
     fetchSummary();
+    fetchDataLake();
   }, []);
 
   const fetchSummary = async () => {
@@ -128,6 +132,16 @@ export default function CommandCenter() {
         const data = await res.json();
         setDataCatalog(data.dataCatalog || []);
         setRetentionPolicies(data.retentionPolicies || []);
+      }
+    } catch (e) {}
+  };
+
+  const fetchDataLake = async () => {
+    try {
+      const res = await fetch('/api/dashboard/datalake');
+      if (res.ok) {
+        const data = await res.json();
+        setDataLakeSources(data.sources || []);
       }
     } catch (e) {}
   };
@@ -270,6 +284,48 @@ export default function CommandCenter() {
     } catch (e) {}
   };
 
+  const handleDeleteGovernance = async (id: string) => {
+    try {
+      const res = await fetch(`/api/dashboard/governance?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchGovernance();
+      }
+    } catch (e) {}
+  };
+
+  const handleCreateDataLake = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDataLakeMessage('');
+    try {
+      const res = await fetch('/api/dashboard/datalake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataLakeForm)
+      });
+      if (res.ok) {
+        setDataLakeMessage('Data Lake source connected successfully.');
+        fetchDataLake();
+        setDataLakeForm({ name: '', sourceType: 'API_SYNC', dataType: 'FINANCIAL_STATEMENT', fileSize: 0, recordsCount: 0 });
+      } else {
+        const err = await res.json();
+        setDataLakeMessage(`Error: ${err.error || 'Failed to connect source.'}`);
+      }
+    } catch (e) {}
+  };
+
+  const handleDeleteDataLake = async (id: string) => {
+    try {
+      const res = await fetch(`/api/dashboard/datalake?id=${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchDataLake();
+      }
+    } catch (e) {}
+  };
+
   const handleRunReconciliation = async () => {
     setReconciliationMessage('');
     try {
@@ -398,7 +454,8 @@ export default function CommandCenter() {
           { id: 'explain', label: 'AI Explainability', icon: <Eye size={16} /> },
           { id: 'workflows', label: 'Workflow Engine', icon: <Sliders size={16} /> },
           { id: 'reconciliation', label: 'Reconciliation', icon: <RefreshCw size={16} /> },
-          { id: 'governance', label: 'Data Governance', icon: <Database size={16} /> },
+          { id: 'datalake', label: 'Data Lake & Warehouse', icon: <Database size={16} /> },
+          { id: 'governance', label: 'Data Governance', icon: <Shield size={16} /> },
           { id: 'observability', label: 'Observability Console', icon: <Server size={16} /> }
         ].map((t) => (
           <button
@@ -826,6 +883,103 @@ export default function CommandCenter() {
         </div>
       )}
 
+      {/* TAB CONTENT: Data Lake & Warehouse */}
+      {activeTab === 'datalake' && (
+        <div className="dashboard-grid">
+          
+          {/* Active Data Lake Sources */}
+          <div className="card col-7" style={{ padding: '2rem' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.25rem' }}>Active Data Pipes & Warehouses</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {dataLakeSources.length === 0 ? (
+                <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>No data sources connected to the data lake yet.</p>
+              ) : (
+                dataLakeSources.map((source) => (
+                  <div key={source.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+                    <div>
+                      <strong style={{ fontSize: '1rem', display: 'block', color: 'var(--primary)' }}>{source.name}</strong>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                        Source: {source.sourceType.replace(/_/g, ' ')} | Type: {source.dataType.replace(/_/g, ' ')}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--success)', marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Check size={12} /> Sync Active ({source.recordsCount} records)
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <button 
+                        onClick={() => handleDeleteDataLake(source.id)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--muted)'}
+                        title="Disconnect Source"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Connect New Source form */}
+          <div className="col-5" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="card" style={{ padding: '2rem' }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem' }}>Connect Data Pipeline</h2>
+              {dataLakeMessage && (
+                <div className="badge badge-success" style={{ padding: '0.5rem', textAlign: 'center', display: 'block', marginBottom: '1rem', width: '100%' }}>
+                  {dataLakeMessage}
+                </div>
+              )}
+              <form onSubmit={handleCreateDataLake} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Data Pipeline Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. HDFC Bank Statements Node"
+                    value={dataLakeForm.name}
+                    onChange={(e) => setDataLakeForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="form-input"
+                    style={{ borderRadius: '10px' }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Ingestion Type</label>
+                  <select
+                    value={dataLakeForm.sourceType}
+                    onChange={(e) => setDataLakeForm(prev => ({ ...prev, sourceType: e.target.value }))}
+                    className="form-input"
+                    style={{ borderRadius: '10px' }}
+                  >
+                    <option value="API_SYNC">Real-time API Sync</option>
+                    <option value="FILE_UPLOAD">Secure File Drop</option>
+                    <option value="MANUAL">Manual Batch Run</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Dataset Category</label>
+                  <select
+                    value={dataLakeForm.dataType}
+                    onChange={(e) => setDataLakeForm(prev => ({ ...prev, dataType: e.target.value }))}
+                    className="form-input"
+                    style={{ borderRadius: '10px' }}
+                  >
+                    <option value="FINANCIAL_STATEMENT">Financial Ledgers / P&L</option>
+                    <option value="TAX_RECORD">Tax Portal Records (GST)</option>
+                    <option value="BANK_STATEMENT">Banking Statements</option>
+                  </select>
+                </div>
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', borderRadius: '10px', textTransform: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                  <Database size={16} /> Provision Data Source
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      )}
+
       {/* TAB CONTENT: Data Governance */}
       {activeTab === 'governance' && (
         <div className="dashboard-grid">
@@ -908,10 +1062,21 @@ export default function CommandCenter() {
             <div className="card" style={{ padding: '1.5rem' }}>
               <strong style={{ fontSize: '1rem', display: 'block', marginBottom: '0.75rem' }}>Active Retention Rules</strong>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {retentionPolicies.map((p, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', borderBottom: '1px dashed var(--border)', paddingBottom: '0.4rem' }}>
-                    <span>{p.category}</span>
-                    <strong style={{ color: 'var(--primary)' }}>{p.duration} ({p.action})</strong>
+                {retentionPolicies.map((p) => (
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', borderBottom: '1px dashed var(--border)', paddingBottom: '0.4rem' }}>
+                    <div>
+                      <span style={{ display: 'block', fontWeight: 600 }}>{p.policyCategory}</span>
+                      <strong style={{ color: 'var(--primary)' }}>{p.policyDuration} ({p.policyAction})</strong>
+                    </div>
+                    <button 
+                      onClick={() => handleDeleteGovernance(p.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '0.2rem' }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--muted)'}
+                      title="Remove Policy"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 ))}
               </div>

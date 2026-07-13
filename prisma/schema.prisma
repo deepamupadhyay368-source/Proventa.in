@@ -321,6 +321,28 @@ model KnowledgeDocument {
   createdAt      DateTime @default(now())
 }
 
+model DataLakeSource {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  sourceType     String   // API_SYNC, FILE_UPLOAD, MANUAL
+  dataType       String   // FINANCIAL_STATEMENT, TAX_RECORD, BANK_STATEMENT
+  status         String   // ACTIVE, PENDING, FAILED
+  fileSize       Int?
+  recordsCount   Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model RetentionPolicy {
+  id               String   @id @default(uuid())
+  organizationId   String
+  policyCategory   String
+  policyDuration   String
+  policyAction     String   // ARCHIVE, PURGE, RETAIN
+  createdAt        DateTime @default(now())
+}
+
 model Waitlist {
   id        String   @id @default(uuid())
   name      String
