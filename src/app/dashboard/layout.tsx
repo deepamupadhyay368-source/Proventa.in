@@ -6,22 +6,11 @@ import Link from 'next/link';
 import { useTheme } from '@/components/ThemeProvider';
 import AiCopilot from '@/components/AiCopilot';
 import { 
-  LayoutDashboard, 
-  Users2, 
-  KeyRound, 
-  FileLock2, 
-  Activity, 
-  HelpCircle, 
-  Settings, 
-  Bell, 
-  Sun, 
-  Moon, 
-  LogOut, 
-  Sparkles, 
-  Building2,
-  Menu,
-  X,
-  Briefcase
+  LayoutDashboard, Users2, KeyRound, FileLock2, Activity, 
+  HelpCircle, Settings, Bell, Sun, Moon, LogOut, Sparkles, 
+  Building2, Menu, X, Briefcase, Users, FileText, AlertTriangle,
+  TrendingUp, BarChart3, Palette, Bot, Download, CreditCard,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -72,15 +61,58 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   };
 
-  const navLinks = [
-    { href: '/dashboard', label: 'Executive Dashboard', icon: <LayoutDashboard size={18} /> },
-    { href: '/dashboard/portfolio', label: 'Portfolio Analytics', icon: <Users2 size={18} /> },
-    { href: '/dashboard/ca-copilot', label: 'AI CA Copilot', icon: <Briefcase size={18} /> },
-    { href: '/dashboard/vault', label: 'Secure Document Vault', icon: <FileLock2 size={18} /> },
-    { href: '/dashboard/api-portal', label: 'API & Dev Portal', icon: <KeyRound size={18} /> },
-    { href: '/dashboard/audit-logs', label: 'Audit & Activity Logs', icon: <Activity size={18} /> },
-    { href: '/dashboard/support', label: 'Customer Support', icon: <HelpCircle size={18} /> },
-    { href: '/dashboard/settings', label: 'Billing & Settings', icon: <Settings size={18} /> },
+  const navGroups = [
+    {
+      label: 'CORE',
+      links: [
+        { href: '/dashboard',              label: 'Dashboard',          icon: <LayoutDashboard size={16} /> },
+        { href: '/dashboard/portfolio',    label: 'Portfolio',          icon: <Users2 size={16} /> },
+        { href: '/dashboard/customers',    label: 'Customers',          icon: <Users size={16} /> },
+        { href: '/dashboard/invoices',     label: 'Invoices & AR',      icon: <FileText size={16} /> },
+        { href: '/dashboard/alerts',       label: 'Credit Alerts',      icon: <AlertTriangle size={16} /> },
+      ]
+    },
+    {
+      label: 'AI & ANALYTICS',
+      links: [
+        { href: '/dashboard/ca-copilot',   label: 'AI CA Copilot',      icon: <Briefcase size={16} /> },
+        { href: '/dashboard/ai',           label: 'AI Workspace',        icon: <Sparkles size={16} /> },
+        { href: '/dashboard/forecasting',  label: 'AI Forecasting',     icon: <TrendingUp size={16} /> },
+        { href: '/dashboard/analytics',    label: 'Analytics',          icon: <BarChart3 size={16} /> },
+        { href: '/dashboard/benchmarking', label: 'Benchmarking',       icon: <ShieldCheck size={16} /> },
+      ]
+    },
+    {
+      label: 'TOOLS',
+      links: [
+        { href: '/dashboard/vault',         label: 'Document Vault',    icon: <FileLock2 size={16} /> },
+        { href: '/dashboard/exports',       label: 'Export Center',     icon: <Download size={16} /> },
+        { href: '/dashboard/connections',   label: 'Integrations',      icon: <Activity size={16} /> },
+        { href: '/dashboard/command-center',label: 'Command Center',    icon: <Settings size={16} /> },
+      ]
+    },
+    {
+      label: 'SETTINGS',
+      links: [
+        { href: '/dashboard/team',          label: 'Team & Access',     icon: <Users size={16} /> },
+        { href: '/dashboard/billing',       label: 'Billing & Plans',   icon: <CreditCard size={16} /> },
+        { href: '/dashboard/white-label',   label: 'White Label',       icon: <Palette size={16} /> },
+        { href: '/dashboard/ai-agent',      label: 'Custom AI Agent',   icon: <Bot size={16} /> },
+        { href: '/dashboard/security-center',label: 'Security',         icon: <ShieldCheck size={16} /> },
+        { href: '/dashboard/audit-logs',    label: 'Audit Logs',        icon: <Activity size={16} /> },
+        { href: '/dashboard/support',       label: 'Support',           icon: <HelpCircle size={16} /> },
+        { href: '/dashboard/api-portal',    label: 'API Portal',        icon: <KeyRound size={16} /> },
+        { href: '/dashboard/settings',      label: 'Settings',          icon: <Settings size={16} /> },
+      ]
+    }
+  ];
+  // flat list for mobile nav (top 5 only)
+  const mobileNavLinks = [
+    { href: '/dashboard', label: 'Home', icon: <LayoutDashboard size={20} /> },
+    { href: '/dashboard/customers', label: 'Customers', icon: <Users size={20} /> },
+    { href: '/dashboard/invoices', label: 'Invoices', icon: <FileText size={20} /> },
+    { href: '/dashboard/alerts', label: 'Alerts', icon: <AlertTriangle size={20} /> },
+    { href: '/dashboard/ca-copilot', label: 'CA', icon: <Briefcase size={20} /> },
   ];
 
   if (!user) {
@@ -168,21 +200,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
 
-        <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto' }}>
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className={`sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.icon}
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
+        <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.1em', padding: '1rem 1.25rem 0.35rem' }}>{group.label}</div>
+              {group.links.map((link) => {
+                const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
+                return (
+                  <Link key={link.href} href={link.href} className={`sidebar-link ${isActive ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+                    {link.icon}
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         <div style={{
@@ -256,21 +288,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
 
-        {/* Sidebar Navigation */}
-        <nav className="sidebar-nav">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className={`sidebar-link ${isActive ? 'active' : ''}`}
-              >
-                {link.icon}
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
+        {/* Sidebar Navigation — grouped */}
+        <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.1em', padding: '1rem 1.25rem 0.35rem' }}>{group.label}</div>
+              {group.links.map((link) => {
+                const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
+                return (
+                  <Link key={link.href} href={link.href} className={`sidebar-link ${isActive ? 'active' : ''}`}>
+                    {link.icon}
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Sidebar Footer Profile */}
@@ -440,6 +473,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Global AI Copilot Component */}
       <AiCopilot />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="mobile-bottom-nav">
+        {mobileNavLinks.map((link) => {
+          const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
+          return (
+            <Link key={link.href} href={link.href} className={`mobile-nav-item ${isActive ? 'active' : ''}`}>
+              {link.icon}
+              <span>{link.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
