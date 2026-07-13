@@ -42,75 +42,44 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 /**
- * Creates an active database-backed session for a user and sets the cookie
+ * Creates a stateless session for a user and sets the cookie
  */
 export async function setSession(payload: SessionPayload) {
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-  
-  const headersList = headers();
-  const userAgent = headersList.get('user-agent') || 'Unknown';
-  // Attempt to parse client IP
-  const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || '127.0.0.1';
-
-  const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS);
-
-  // Store session in DB
-  await db.session.create({
-    data: {
-      userId: payload.userId,
-      orgId: payload.organizationId || 'unassigned',
-      tokenHash,
-      ipAddress,
-      userAgent,
-      expiresAt,
-    }
-  });
+  // Convert payload to a stateless token to avoid SQLite read-only issues on Vercel
+  const statelessToken = Buffer.from(JSON.stringify({
+    ...payload,
+    exp: Date.now() + SESSION_EXPIRY_MS
+  })).toString('base64');
 
   const cookieStore = cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, rawToken, {
+  cookieStore.set(SESSION_COOKIE_NAME, statelessToken, {
     httpOnly: true,
-    secure: true, // Always enforce Secure cookies
-    sameSite: 'strict', // Strict for anti-CSRF protection
-    expires: expiresAt,
+    secure: true,
+    sameSite: 'strict',
+    expires: new Date(Date.now() + SESSION_EXPIRY_MS),
     path: '/',
   });
 }
 
 /**
- * Retrieves the current session, performing database checks, expiration validation, and idle resets
+ * Retrieves the current session from the stateless cookie
  */
 export async function getSession(): Promise<SessionPayload | null> {
   const cookieStore = cookies();
-  const rawToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  if (!rawToken) return null;
-
-  const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (!token) return null;
 
   try {
-    const dbSession = await db.session.findUnique({
-      where: { tokenHash },
-      include: { user: true }
-    });
-
-    if (!dbSession || dbSession.isRevoked || dbSession.expiresAt < new Date()) {
+    const payload = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+    if (!payload || !payload.userId || payload.exp < Date.now()) {
       return null;
     }
-
-    // Enforce idle timeout check: if last activity is older than 30 mins
-    const lastActivity = dbSession.createdAt; // We can use the created/updated context
-    // For this context, let's reset session expiresAt to slide token window on active use
-    const newExpiry = new Date(Date.now() + SESSION_EXPIRY_MS);
-    await db.session.update({
-      where: { id: dbSession.id },
-      data: { expiresAt: newExpiry }
-    });
-
+    
     return {
-      userId: dbSession.user.id,
-      email: dbSession.user.email,
-      role: dbSession.user.role,
-      organizationId: dbSession.user.organizationId,
+      userId: payload.userId,
+      email: payload.email,
+      role: payload.role,
+      organizationId: payload.organizationId,
     };
   } catch (error) {
     return null;
@@ -122,14 +91,6 @@ export async function getSession(): Promise<SessionPayload | null> {
  */
 export async function clearSession() {
   const cookieStore = cookies();
-  const rawToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  if (rawToken) {
-    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-    try {
-      await db.session.delete({ where: { tokenHash } }).catch(() => {});
-    } catch (e) {}
-  }
-
   cookieStore.set(SESSION_COOKIE_NAME, '', {
     httpOnly: true,
     secure: true,
