@@ -310,8 +310,8 @@ export default function RootLandingPage() {
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
-          <div className="logo-icon" style={{ background: 'var(--primary)', color: '#ffffff', borderRadius: '8px' }}>P</div>
+        <div className="logo-container" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.875rem' }} onClick={() => router.push('/')}>
+          <div className="logo-icon" style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', color: '#ffffff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyComposite: 'none', justifyContent: 'center', fontWeight: 900 }}>P</div>
           <span style={{ fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em', fontSize: '1.4rem' }}>PROVENTA</span>
         </div>
 
@@ -353,7 +353,7 @@ export default function RootLandingPage() {
             </div>
             
             <h1 style={{
-              fontSize: '4rem',
+              fontSize: '4.2rem',
               lineHeight: '1.1',
               fontWeight: 800,
               color: 'var(--primary)',
@@ -361,7 +361,7 @@ export default function RootLandingPage() {
               marginBottom: '1.5rem',
               fontFamily: 'Outfit, sans-serif'
             }}>
-              Create your enterprise developer portal & credit engine
+              AI Credit Intelligence for the Modern Enterprise.
             </h1>
 
             <p style={{
