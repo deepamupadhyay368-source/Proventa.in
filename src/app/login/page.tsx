@@ -66,16 +66,35 @@ export default function LoginPage() {
     }
   };
 
-  const handleMfaSubmit = (e: React.FormEvent) => {
+  const handleMfaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    // Simulate OTP checking (any 6 digit OTP or '123456')
-    if (otp.length === 6) {
-      // Complete login redirect
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/login/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: otp }),
+      });
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error('Server returned an unexpected response. Please try again later.');
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Verification failed');
+      }
+
       router.push('/dashboard');
-    } else {
-      setError('Invalid OTP code. Please enter 6 digits.');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during verification.');
+    } finally {
+      setLoading(false);
     }
   };
 

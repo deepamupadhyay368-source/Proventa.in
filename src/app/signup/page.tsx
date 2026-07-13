@@ -17,6 +17,10 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // OTP Verification Step
+  const [step, setStep] = useState<'signup' | 'otp'>('signup');
+  const [otp, setOtp] = useState('');
+
   // Check if already logged in
   useEffect(() => {
     fetch('/api/auth/me')
@@ -53,10 +57,45 @@ export default function SignupPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Successful signup redirect to Onboarding wizard
-      router.push('/onboarding');
+      if (data.verificationRequired) {
+        setStep('otp');
+      } else {
+        router.push('/onboarding');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/signup/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: otp }),
+      });
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error('Server returned an unexpected response. Please try again later.');
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Verification failed');
+      }
+
+      router.push('/onboarding');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during verification.');
     } finally {
       setLoading(false);
     }
@@ -166,101 +205,148 @@ export default function SignupPage() {
           </div>
         )}
 
-        <form onSubmit={handleSignupSubmit}>
-          <div className="form-group">
-            <label className="form-label">Full Name</label>
-            <div style={{ position: 'relative' }}>
-              <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+        {step === 'signup' ? (
+          <form onSubmit={handleSignupSubmit}>
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <div style={{ position: 'relative' }}>
+                <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input
+                  type="text"
+                  required
+                  placeholder="John Doe"
+                  className="form-input"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Organization Name</label>
+              <div style={{ position: 'relative' }}>
+                <Building size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input
+                  type="text"
+                  required
+                  placeholder="Acme Corporation"
+                  className="form-input"
+                  value={orgName}
+                  onChange={(e) => setOrgName(e.target.value)}
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Work Email</label>
+              <div style={{ position: 'relative' }}>
+                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input
+                  type="email"
+                  required
+                  placeholder="name@company.com"
+                  className="form-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+              </div>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <label className="form-label">Password</label>
+              <div style={{ position: 'relative' }}>
+                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                <input
+                  type="password"
+                  required
+                  placeholder="At least 14 characters"
+                  className="form-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ paddingLeft: '2.5rem' }}
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginBottom: '1.5rem' }}>
+              {loading ? 'Registering...' : 'Get Started'}
+              {!loading && <ArrowRight size={16} />}
+            </button>
+
+            {/* Social Logins */}
+            <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or register with</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Google')}>
+                <Chrome size={16} />
+                Google
+              </button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Microsoft')}>
+                <Layers size={16} />
+                Microsoft
+              </button>
+            </div>
+
+            <div style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--muted)' }}>
+              Already have an account?{' '}
+              <Link href="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>
+                Sign In
+              </Link>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                background: 'var(--warning-bg)',
+                borderRadius: 'var(--radius-full)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--warning)',
+                border: '1px solid var(--warning-border)',
+                marginBottom: '0.5rem'
+              }}>
+                <Mail size={20} />
+              </div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--foreground)' }}>Verify Your Email</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
+                We sent a 6-digit verification code to <strong>{email}</strong>.
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" style={{ textAlign: 'center' }}>Verification Code</label>
               <input
                 type="text"
                 required
-                placeholder="John Doe"
+                maxLength={6}
+                placeholder="123456"
                 className="form-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                style={{ textAlign: 'center', letterSpacing: '0.5em', fontSize: '1.3rem', fontWeight: 'bold' }}
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Organization Name</label>
-            <div style={{ position: 'relative' }}>
-              <Building size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-              <input
-                type="text"
-                required
-                placeholder="Acme Corporation"
-                className="form-input"
-                value={orgName}
-                onChange={(e) => setOrgName(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Work Email</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-              <input
-                type="email"
-                required
-                placeholder="name@company.com"
-                className="form-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-              />
-            </div>
-          </div>
-
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-              <input
-                type="password"
-                required
-                placeholder="At least 8 characters"
-                className="form-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ paddingLeft: '2.5rem' }}
-              />
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginBottom: '1.5rem' }}>
-            {loading ? 'Registering...' : 'Get Started'}
-            {!loading && <ArrowRight size={16} />}
-          </button>
-
-          {/* Social Logins */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or register with</span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Google')}>
-              <Chrome size={16} />
-              Google
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
+              {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Microsoft')}>
-              <Layers size={16} />
-              Microsoft
-            </button>
-          </div>
 
-          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--muted)' }}>
-            Already have an account?{' '}
-            <Link href="/login" style={{ color: 'var(--primary)', fontWeight: 600 }}>
-              Sign In
-            </Link>
-          </div>
-        </form>
+            <button type="button" className="btn btn-secondary btn-sm" style={{ width: '100%' }} onClick={() => setStep('signup')}>
+              Back to Registration
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

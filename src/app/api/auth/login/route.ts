@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { db } from '@/lib/db';
-import { verifyPassword, setSession } from '@/lib/auth';
+import { verifyPassword } from '@/lib/auth';
 import { logEvent } from '@/lib/logger';
+import { sendEmail } from '@/lib/services/notifications';
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +25,8 @@ export async function POST(request: Request) {
       console.warn("DB read failed on login. Proceeding with mock authentication.");
       dbAccessFailed = true;
     }
+
+    let verifiedUserPayload = null;
 
     // If database access is fine and user exists, check password
     if (user && !dbAccessFailed) {
@@ -65,34 +69,12 @@ export async function POST(request: Request) {
         });
       } catch (e) {}
 
-      // Check if Multi-Factor Authentication is active
-      if (user.mfaEnabled) {
-        try {
-          await logEvent(user.id, user.email, 'MFA_CHALLENGE', 'MFA authentication challenge presented.');
-        } catch (e) {}
-        return NextResponse.json({ mfaRequired: true, email: user.email });
-      }
-
-      // Set session cookie
-      await setSession({
+      verifiedUserPayload = {
         userId: user.id,
         email: user.email,
         role: user.role,
         organizationId: user.organizationId,
-      });
-
-      try {
-        await logEvent(user.id, user.email, 'LOGIN', 'User logged in successfully.');
-      } catch (e) {}
-
-      return NextResponse.json({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        organizationId: user.organizationId,
-        organizationName: user.organization?.name,
-      });
+      };
     } else {
       // Fallback for Vercel SQLite Read-Only environment (or user doesn't exist)
       // Allow any login with at least 8 characters password for demo/sandbox purposes
@@ -100,25 +82,53 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Password must be at least 8 characters for sandbox access' }, { status: 401 });
       }
 
-      const mockUserId = `mock-user-${Date.now()}`;
-      const mockOrgId = `mock-org-id`;
-
-      await setSession({
-        userId: mockUserId,
+      verifiedUserPayload = {
+        userId: `mock-user-${Date.now()}`,
         email: email,
         role: 'ADMIN',
-        organizationId: mockOrgId,
-      });
-
-      return NextResponse.json({
-        id: mockUserId,
-        name: email.split('@')[0],
-        email: email,
-        role: 'ADMIN',
-        organizationId: mockOrgId,
-        organizationName: 'Sandbox Organization',
-      });
+        organizationId: 'mock-org-id',
+      };
     }
+
+    // Generate a 6-digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Send email with OTP
+    await sendEmail(
+      email,
+      'Proventa Sign-In Verification Code',
+      `
+      <div style="font-family: sans-serif; padding: 20px; max-width: 600px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <h2 style="color: #2563eb;">Proventa Verification Code</h2>
+        <p>You requested to sign in to Proventa. Use the verification code below to complete your login:</p>
+        <div style="font-size: 24px; font-weight: bold; background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 6px; letter-spacing: 5px; margin: 20px 0;">
+          ${otpCode}
+        </div>
+        <p style="color: #6b7280; font-size: 14px;">This code is valid for 10 minutes. If you did not request this code, please ignore this email.</p>
+      </div>
+      `
+    );
+
+    // Save pending MFA data in cookie
+    const pendingPayload = {
+      ...verifiedUserPayload,
+      otp: otpCode,
+      exp: Date.now() + 10 * 60 * 1000 // 10 minutes
+    };
+
+    const cookieStore = cookies();
+    cookieStore.set('proventa_mfa_pending', Buffer.from(JSON.stringify(pendingPayload)).toString('base64'), {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      expires: new Date(Date.now() + 10 * 60 * 1000),
+      path: '/',
+    });
+
+    return NextResponse.json({
+      mfaRequired: true,
+      email: email,
+    });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
