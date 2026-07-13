@@ -44,7 +44,13 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error('Server returned an unexpected response. Please try again later.');
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Login failed');

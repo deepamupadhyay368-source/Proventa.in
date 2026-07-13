@@ -1,5 +1,5 @@
 import { cookies, headers } from 'next/headers';
-import argon2 from 'argon2';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { db } from './db';
 
@@ -15,27 +15,22 @@ export interface SessionPayload {
 }
 
 /**
- * Hash password using Argon2id parameters
+ * Hash password using bcrypt
  */
 export async function hashPassword(password: string): Promise<string> {
   // Enforce password requirements check (min 14 characters)
   if (password.length < 14) {
     throw new Error('Password must be at least 14 characters long.');
   }
-  return argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 4,
-  });
+  return bcrypt.hash(password, 10);
 }
 
 /**
- * Verify password using Argon2id
+ * Verify password using bcrypt
  */
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   try {
-    return await argon2.verify(hash, password);
+    return await bcrypt.compare(password, hash);
   } catch (err) {
     return false;
   }

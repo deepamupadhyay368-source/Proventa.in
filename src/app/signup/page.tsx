@@ -41,10 +41,16 @@ export default function SignupPage() {
         body: JSON.stringify({ name, email, password, orgName }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        throw new Error('Server returned an unexpected response. Please try again later.');
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || 'Signup failed');
+        throw new Error(data.error || 'Registration failed');
       }
 
       // Successful signup redirect to Onboarding wizard
