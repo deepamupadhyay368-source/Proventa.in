@@ -24,7 +24,19 @@ import {
   Play,
   MessageSquare,
   Send,
-  X
+  X,
+  Layers,
+  Globe,
+  LineChart,
+  BookOpen,
+  Briefcase,
+  Search,
+  Award,
+  FileText,
+  Check,
+  Lock,
+  Settings,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function RootLandingPage() {
@@ -53,7 +65,7 @@ export default function RootLandingPage() {
   // Public AI Chatbot States
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([
-    { role: 'assistant', content: 'Hello! I am the **Proventa AI Assistant**. How can I help you today?' }
+    { role: 'assistant', content: 'Hello! I am the **Proventa AI Advisor**. How can I help you check compliance or evaluate counterparty risk today?' }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
@@ -102,9 +114,7 @@ export default function RootLandingPage() {
   const runInteractiveCalculator = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Core Credit Assessment math simulation matching our creditEngine
     let baseScore = 650;
-    
     if (calcRevenue > 50000000) baseScore += 80;
     else if (calcRevenue > 10000000) baseScore += 50;
     else if (calcRevenue > 1000000) baseScore += 20;
@@ -167,6 +177,41 @@ export default function RootLandingPage() {
     }
   ];
 
+  const builtForSectors = [
+    { name: 'Banks & NBFCs', label: 'Institutional Lending', icon: <Building size={20} />, desc: 'Accelerate underwriting and evaluate loan counterparty risk instantly.' },
+    { name: 'Manufacturers', label: 'Dealer Networks', icon: <Layers size={20} />, desc: 'Set automated credit terms and monitor payment delays across dealer rings.' },
+    { name: 'Exporters', label: 'Global Trade', icon: <Globe size={20} />, desc: 'Scan international registries and hedge against cross-border default risks.' },
+    { name: 'Wholesalers', label: 'Supply Chain', icon: <TrendingUp size={20} />, desc: 'Verify buyer creditworthiness before initiating major order dispatch lines.' },
+    { name: 'Chartered Accountants', label: 'Audits & Taxation', icon: <Briefcase size={20} />, desc: 'Run automated GST return checks, statutory audits, and financial statements.' },
+    { name: 'Company Secretaries', label: 'Corporate Filing', icon: <Settings size={20} />, desc: 'Automate Roc compliance schedules, registers, and resolution generation.' },
+    { name: 'Legal Counsel', label: 'Litigation Scan', icon: <Scale size={20} />, desc: 'Audit active lawsuits and draft demand notices for slow-paying clients.' },
+    { name: 'SMEs & FinTechs', label: 'Trade Limits', icon: <ShieldCheck size={20} />, desc: 'Access premium credit scores without expensive bureau subscription caps.' }
+  ];
+
+  const productModulesList = [
+    { title: 'Universal Company Search', desc: 'Query GSTIN, PAN, CIN, or Director details instantly.', icon: <Search size={18} /> },
+    { title: 'Credit Scoring Engine', desc: '0-1000 credit score assessment matching major global bureaus.', icon: <TrendingUp size={18} /> },
+    { title: 'Risk Grading matrix', desc: 'Dynamic classification from AAA (Prime) to D (Insolvency).', icon: <Award size={18} /> },
+    { title: 'Automated Credit Limits', desc: 'Recommended limit cap suggestions based on counterparty revenues.', icon: <Lock size={18} /> },
+    { title: 'GST Compliance Audit', desc: 'Scan active filing standing and reconcile input tax credits.', icon: <FileText size={18} /> },
+    { title: 'MCA ROC Postings', desc: 'Track filings history (AOC-4, MGT-7) and capital charges.', icon: <Building size={18} /> },
+    { title: 'Director Networks Mapping', desc: 'Graph current board associations, resignations, and past companies.', icon: <Workflow size={18} /> },
+    { title: 'Litigation Timeline Audit', desc: 'Scrape lawsuits, district filings, NCLT postings, and court dates.', icon: <Scale size={18} /> },
+    { title: 'Payment Days Ageing', desc: 'Analyze DSO metrics and historical payment behavior calendars.', icon: <Activity size={18} /> },
+    { title: 'Document Vault Parsing', desc: 'OCR parsing for bank statement PDF uploads & ledger sheets.', icon: <FileSpreadsheet size={18} /> },
+    { title: 'AI Chartered Accountant', desc: 'Reconcile ledgers, compute TDS/TCS ratios, and prepare ITR filing.', icon: <Briefcase size={18} /> },
+    { title: 'AI Company Secretary', desc: 'Board resolutions builder, compliance calendar, and registers.', icon: <Settings size={18} /> },
+    { title: 'AI Legal Copilot', desc: 'Automated contract risk scanner and notice drafts generator.', icon: <ShieldCheck size={18} /> },
+    { title: 'ERP Ingest Connectors', desc: 'Sync QuickBooks, Xero, Tally Prime, and Salesforce APIs.', icon: <Activity size={18} /> },
+    { title: 'Continuous Monitoring', desc: 'Real-time alert notifications of counterparty rating adjustments.', icon: <AlertTriangle size={18} /> },
+    { title: 'Bad Debt Forecasting', desc: 'Predict default indicators across portfolio segments.', icon: <LineChart size={18} /> },
+    { title: 'Industry Benchmarking', desc: 'Compare payment performance against regional peer medians.', icon: <Layers size={18} /> },
+    { title: 'Audit Trail Ledger', desc: 'Immutable logs, IP whitelists, and SOC-2 standard settings.', icon: <KeyRound size={18} /> },
+    { title: 'White Label Suite', desc: 'Custom branding interface, primary themes, and domain routing.', icon: <Sparkles size={18} /> },
+    { title: 'Developer API Portal', desc: 'Integrate scores and KYB scans directly into your product code.', icon: <Terminal size={18} /> },
+    { title: 'Executive Overview', desc: 'Single-pane B2B cockpit showing total exposure & Bad Debt risks.', icon: <Layers size={18} /> }
+  ];
+
   if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--background)', justifyContent: 'center', alignItems: 'center' }}>
@@ -185,21 +230,46 @@ export default function RootLandingPage() {
       position: 'relative',
       overflowX: 'hidden'
     }}>
-      {/* Subtle Financial Node network background effect */}
-      <div style={{
+      <style>{`
+        @keyframes float {
+          0% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(1deg); }
+          100% { transform: translateY(0px) rotate(0deg); }
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .hero-gradient-overlay {
+          background: radial-gradient(circle at 80% 20%, rgba(37,99,235,0.08) 0%, transparent 50%),
+                      radial-gradient(circle at 10% 80%, rgba(139,92,246,0.05) 0%, transparent 50%);
+        }
+        .product-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--primary) !important;
+          box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08) !important;
+        }
+        .trust-card:hover {
+          border-color: var(--primary) !important;
+          background: rgba(var(--primary-rgb), 0.02) !important;
+        }
+      `}</style>
+
+      {/* Background gradients */}
+      <div className="hero-gradient-overlay" style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
-        height: '600px',
-        opacity: 0.35,
-        backgroundImage: `radial-gradient(var(--border) 1px, transparent 1px), radial-gradient(rgba(37,99,235,0.03) 2px, transparent 2px)`,
-        backgroundSize: '30px 30px, 60px 60px',
+        bottom: 0,
         zIndex: 0,
         pointerEvents: 'none'
       }} />
 
-      {/* Floating Theme Button */}
+      {/* Floating Theme Switcher */}
       <button 
         onClick={toggleTheme}
         className="theme-switch"
@@ -215,14 +285,15 @@ export default function RootLandingPage() {
           zIndex: 1000,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          cursor: 'pointer'
         }}
         aria-label="Toggle Theme"
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
 
-      {/* Sticky Header Navigation */}
+      {/* Navigation Header */}
       <header className="top-nav" style={{
         position: 'sticky',
         top: 0,
@@ -234,84 +305,82 @@ export default function RootLandingPage() {
         borderBottom: '1px solid var(--border)',
         background: theme === 'dark' ? 'rgba(6, 10, 18, 0.85)' : 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(16px)',
-        padding: '0 3rem'
+        padding: '0 3rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3rem', width: '100%', justifyContent: 'space-between' }}>
-          <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
-            <div className="logo-icon" style={{ background: 'var(--primary)', color: '#ffffff', borderRadius: '8px' }}>P</div>
-            <span style={{ fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em', fontSize: '1.4rem' }}>PROVENTA</span>
-          </div>
+        <div className="logo-container" style={{ cursor: 'pointer' }} onClick={() => router.push('/')}>
+          <div className="logo-icon" style={{ background: 'var(--primary)', color: '#ffffff', borderRadius: '8px' }}>P</div>
+          <span style={{ fontWeight: 800, color: 'var(--primary)', letterSpacing: '-0.02em', fontSize: '1.4rem' }}>PROVENTA</span>
+        </div>
 
-          {/* Desktop Navigation Menu Links */}
-          <nav className="desktop-only" style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--muted)' }}>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Solutions', desc: 'Enterprise-grade credit scoring for trade counterparties.', ctaText: 'Launch Assessment', link: '/login' })}>Solutions</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Industries', desc: 'Banking, NBFCs, Manufacturers, Exporters and SMEs.', ctaText: 'View Industries', link: '/waitlist' })}>Industries</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Platform', desc: 'End-to-End Enterprise credit Command Center.', ctaText: 'Explore Platform', link: '/login' })}>Platform</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Pricing', desc: 'Flexible plans scaling with your API calls and user volume.', ctaText: 'View Pricing', link: '/waitlist' })}>Pricing</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Resources', desc: 'Case studies, API documentation, and industry whitepapers.', ctaText: 'Read Docs', link: '/login' })}>Resources</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'About', desc: 'Proventa is building the future of automated credit intelligence.', ctaText: 'Our Story', link: '/waitlist' })}>About</span>
-            <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Contact', desc: 'Get in touch with our enterprise sales and support teams.', ctaText: 'Contact Us', link: '/book-demo' })}>Contact</span>
-          </nav>
+        <nav className="desktop-only" style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--muted)' }}>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Solutions', desc: 'Enterprise-grade credit scoring for trade counterparties. Reconcile GST returns, litigation indices, and board network mappings.', ctaText: 'Launch Assessment', link: '/login' })}>Solutions</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Industries', desc: 'Providing institutional credit intelligence for Banks, NBFCs, Manufacturers, Exporters, and Chartered Accountants.', ctaText: 'View Industries', link: '/waitlist' })}>Industries</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Platform & Modules', desc: 'Secure document vaults, custom AI agents, key rotation logs, and whitelist firewalls.', ctaText: 'Explore Platform', link: '/login' })}>Platform</span>
+          <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} className="nav-hover" onClick={() => setModalDetail({ title: 'Pricing', desc: 'Plans tailored to scaling search queries and automated workflow triggers.', ctaText: 'View Pricing', link: '/waitlist' })}>Pricing</span>
+        </nav>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {auth ? (
-              <Link href="/dashboard" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem' }}>
-                Go to Dashboard
-                <ArrowRight size={16} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {auth ? (
+            <Link href="/dashboard" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem' }}>
+              Dashboard
+              <ArrowRight size={16} />
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', padding: '0.6rem 1.2rem' }}>
+                Sign In
               </Link>
-            ) : (
-              <>
-                <Link href="/login" style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--foreground)', padding: '0.6rem 1.2rem' }}>
-                  Sign In
-                </Link>
-                <Link href="/waitlist" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem', background: 'var(--primary)' }}>
-                  Join Waitlist
-                </Link>
-              </>
-            )}
-          </div>
+              <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '12px', padding: '0.6rem 1.4rem', background: 'var(--primary)' }}>
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
       {/* Main Hero Container */}
       <main style={{ flex: 1, zIndex: 10 }}>
-        {/* Full-width premium Hero Section */}
-        <section className="hero-grid" style={{ maxWidth: '1440px', margin: '0 auto' }}>
-          {/* Left Column Text */}
+        
+        {/* Outcome-Driven Hero Section */}
+        <section className="hero-grid" style={{ maxWidth: '1440px', margin: '0 auto', padding: '5rem 3rem', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '4rem', alignItems: 'center' }}>
           <div className="hero-text-col">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '100px', padding: '0.35rem 1rem', color: 'var(--info)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '1.5rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: '100px', padding: '0.35rem 1rem', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '1.5rem' }}>
               <Sparkles size={14} />
-              <span>Next-Gen Enterprise Credit Automation</span>
+              <span>Next-Gen Enterprise Credit Automation & KYC</span>
             </div>
             
             <h1 style={{
-              fontSize: '3.6rem',
-              lineHeight: '1.15',
+              fontSize: '4rem',
+              lineHeight: '1.1',
               fontWeight: 800,
               color: 'var(--primary)',
               letterSpacing: '-0.03em',
-              marginBottom: '1.5rem'
+              marginBottom: '1.5rem',
+              fontFamily: 'Outfit, sans-serif'
             }}>
-              AI Credit Intelligence for Modern Businesses
+              Know who to trust before you sell.
             </h1>
 
             <p style={{
-              fontSize: '1.2rem',
+              fontSize: '1.25rem',
               lineHeight: '1.6',
               color: 'var(--muted)',
               marginBottom: '2.5rem',
-              maxWidth: '600px'
+              maxWidth: '650px'
             }}>
-              Transform financial data into actionable credit decisions with AI-powered risk analysis, cash flow intelligence, financial insights, and enterprise automation.
+              Proventa combines corporate registries, court records, input tax indices, and banking statements to calculate instant credit risk scores and auto-approve trade limits.
             </p>
 
             <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <Link href="/waitlist" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '14px', padding: '1rem 2.25rem', fontSize: '1rem', background: 'var(--primary)' }}>
-                Join Priority Waitlist
+              <Link href="/signup" className="btn btn-primary" style={{ textTransform: 'none', borderRadius: '14px', padding: '1rem 2.25rem', fontSize: '1rem', background: 'var(--primary)' }}>
+                Start Free Trial
                 <ArrowRight size={16} />
               </Link>
               
-              <button className="btn btn-secondary" style={{
+              <Link href="/book-demo" className="btn btn-secondary" style={{
                 textTransform: 'none',
                 borderRadius: '14px',
                 padding: '1rem 2.25rem',
@@ -324,77 +393,76 @@ export default function RootLandingPage() {
                 gap: '0.75rem'
               }}>
                 <Play size={16} style={{ fill: 'currentColor' }} />
-                <span>Watch Platform</span>
-              </button>
+                <span>Request Custom Demo</span>
+              </Link>
             </div>
           </div>
 
-          {/* Right Column: Premium Dashboard Floating Mockup & Video */}
-          <div className="hero-visual-col" style={{ position: 'relative' }}>
-
-
+          {/* Premium Floating Mockup Dashboard Card */}
+          <div className="hero-visual-col animate-float" style={{ position: 'relative' }}>
             <div className="card" style={{
-              borderRadius: '20px',
+              borderRadius: '24px',
               border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow-xl)',
+              boxShadow: 'var(--shadow-2xl)',
               background: 'var(--card)',
               padding: '2rem',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              backdropFilter: 'blur(10px)',
+              position: 'relative'
             }}>
-              {/* Mockup Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.25rem' }}>
                 <div>
-                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.05em' }}>Counterparty Assessment</div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--primary)' }}>{calcName}</h3>
+                  <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.05em' }}>Counterparty Assessment</div>
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }}>{calcName}</h3>
                 </div>
-                <span className="badge badge-success" style={{ padding: '0.3rem 0.8rem', borderRadius: '8px' }}>Active</span>
+                <span className="badge badge-success" style={{ padding: '0.35rem 0.95rem', borderRadius: '8px', fontSize: '0.75rem' }}>✓ KYC VERIFIED</span>
               </div>
 
               {/* KPI Score Widgets */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-                <div style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Credit Health Score</div>
+                <div style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Credit Score Engine</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                    <span className="number-mono" style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary)' }}>{calcResult.score}</span>
+                    <span className="number-mono" style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }}>{calcResult.score}</span>
                     <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>/900</span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.4rem' }}>
                     <span style={{ display: 'inline-block', width: '6px', height: '6px', background: 'var(--success)', borderRadius: '50%' }}></span>
-                    <span>Excellent Standing</span>
+                    <span>Excellent standing</span>
                   </div>
                 </div>
 
-                <div style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Risk Assessment</div>
+                <div style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Risk Rating Grade</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--secondary)' }}>{calcResult.rating}</span>
-                    <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>Low Risk</span>
+                    <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--secondary)', fontFamily: 'Outfit, sans-serif' }}>{calcResult.rating}</span>
+                    <span className="badge badge-success" style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}>Low Risk</span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
-                    Index probability of default: <strong className="number-mono">{calcResult.risk}%</strong>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.4rem' }}>
+                    Default Prob: <strong className="number-mono">{calcResult.risk}%</strong>
                   </div>
                 </div>
               </div>
 
-              {/* Cash Flow Limit Metrics */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem', background: 'var(--background)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              {/* Exposure limit & terms details */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem', background: 'var(--background)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border)', fontSize: '0.9rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--muted)' }}>Recommended Credit Limit</span>
-                  <span className="number-mono" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)' }}>₹{(calcResult.limit / 100000).toFixed(1)} L</span>
+                  <span style={{ fontWeight: 600, color: 'var(--muted)' }}>Approved Exposure Cap</span>
+                  <span className="number-mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)' }}>₹{(calcResult.limit).toLocaleString('en-IN')}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--muted)' }}>Payment Terms</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary)' }}>{calcResult.terms}</span>
+                  <span style={{ fontWeight: 600, color: 'var(--muted)' }}>Optimal Payment Terms</span>
+                  <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>{calcResult.terms} Days</span>
                 </div>
               </div>
 
-              {/* AI Recommendations Panel */}
-              <div style={{ background: 'rgba(37,99,235,0.03)', border: '1px dashed var(--info-border)', borderRadius: '12px', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
+              {/* AI Guidance details */}
+              <div style={{ background: 'rgba(37,99,235,0.03)', border: '1px dashed var(--info-border)', borderRadius: '14px', padding: '1.25rem', display: 'flex', gap: '0.75rem', fontSize: '0.85rem' }}>
                 <Activity size={18} style={{ color: 'var(--info)', flexShrink: 0, marginTop: '0.15rem' }} />
                 <div>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.25rem' }}>AI Insight Guidance</h4>
-                  <p style={{ fontSize: '0.775rem', color: 'var(--muted)', lineHeight: '1.5' }}>
-                    Entity exhibits high cash flow margins and low litigation exposure. Trade limit recommendation adjusted to ₹{(calcResult.limit).toLocaleString('en-IN')} withNet terms.
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.25rem' }}>AI Copilot Reasoning Guidance</h4>
+                  <p style={{ color: 'var(--muted)', lineHeight: '1.5' }}>
+                    Entity exhibits high annual revenue, active GST return filing history, and zero pending litigations. Recommended limit structure matches peak capacity index coefficients.
                   </p>
                 </div>
               </div>
@@ -402,37 +470,69 @@ export default function RootLandingPage() {
           </div>
         </section>
 
-        {/* Brand Trust Indicator Banner Section */}
-        <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--card)', padding: '2.5rem 0' }}>
-          <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 3rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '2rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted)' }}>Trusted By Enterprise Risk Officers In</span>
-            <div style={{ display: 'flex', gap: '3rem', alignItems: 'center', flexWrap: 'wrap', filter: 'grayscale(1) opacity(0.6)' }} className="logo-filter">
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> BANKS</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> NBFCs</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> DISTRIBUTORS</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> EXPORTERS</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: 'var(--primary)', fontSize: '1.1rem' }}><Building size={16} /> MANUFACTURERS</span>
+        {/* Built For Multi-Industry Trust Grid */}
+        <section style={{ borderTop: '1px solid var(--border)', background: 'var(--card)', padding: '5rem 3rem' }}>
+          <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem', fontFamily: 'Outfit, sans-serif' }}>
+                Engineered for High-Exposure Risk Officers
+              </h2>
+              <p style={{ color: 'var(--muted)', fontSize: '1.05rem', maxWidth: '650px', margin: '0 auto' }}>
+                From statutory audits to institutional underwriting, Proventa provides deep intelligence buffers.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+              {builtForSectors.map((sector, idx) => (
+                <div 
+                  key={idx} 
+                  className="card trust-card" 
+                  style={{ 
+                    padding: '1.5rem', 
+                    borderRadius: '16px', 
+                    border: '1px solid var(--border)', 
+                    background: 'var(--background)',
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '1rem',
+                    transition: 'all 0.2s',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setModalDetail({ title: sector.name, desc: sector.desc, ctaText: 'Explore Module', link: '/login' })}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ background: 'rgba(37,99,235,0.08)', color: 'var(--primary)', padding: '0.5rem', borderRadius: '10px' }}>
+                      {sector.icon}
+                    </div>
+                    <div>
+                      <strong style={{ fontSize: '0.95rem', color: 'var(--primary)', display: 'block' }}>{sector.name}</strong>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>{sector.label}</span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: '1.4' }}>{sector.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Interactive Credit Assessment Tool Module */}
+        {/* Interactive Credit Simulator Tool */}
         <section style={{ maxWidth: '1440px', margin: '0 auto', padding: '6rem 3rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', letterSpacing: '-0.02em', fontFamily: 'Outfit, sans-serif' }}>
               Run an Instant Credit Assessment
             </h2>
             <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-              Simulate the credit decision engine workflow directly. Enter company details to calculate risk.
+              Simulate the risk matrix checks dynamically. Input credentials parameters to calculate values.
             </p>
           </div>
 
-          <div className="dashboard-grid" style={{ alignItems: 'start', gap: '2rem' }}>
+          <div className="dashboard-grid" style={{ alignItems: 'stretch', gap: '2.5rem' }}>
             {/* Input Form Card */}
-            <div className="card col-6" style={{ padding: '2.5rem' }}>
-              <form onSubmit={runInteractiveCalculator}>
+            <div className="card col-6" style={{ padding: '2.5rem', borderRadius: '20px' }}>
+              <form onSubmit={runInteractiveCalculator} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div className="form-group">
-                  <label className="form-label">Company Name</label>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Counterparty Legal Name</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -444,7 +544,7 @@ export default function RootLandingPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Industry Classification</label>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Industry Classification</label>
                   <select 
                     className="form-input" 
                     value={calcIndustry} 
@@ -453,14 +553,14 @@ export default function RootLandingPage() {
                   >
                     <option value="Logistics">Logistics & Supply Chain</option>
                     <option value="Manufacturing">Heavy Manufacturing</option>
-                    <option value="Distributor">Wholesale Distribution</option>
+                    <option value="Wholesale">Wholesale Distribution</option>
                     <option value="Technology">SaaS & Technology</option>
                     <option value="Retail">E-commerce & Retail</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Annual Turnover (₹)</label>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Annual Revenue (₹)</label>
                   <select 
                     className="form-input" 
                     value={calcRevenue} 
@@ -476,7 +576,7 @@ export default function RootLandingPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Active Civil Litigations / Disputes</label>
+                  <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Active Civil Lawsuits / Court Disputes</label>
                   <input 
                     type="number" 
                     className="form-input" 
@@ -499,48 +599,48 @@ export default function RootLandingPage() {
             </div>
 
             {/* Assessment Score Results Output View */}
-            <div className="col-6" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div className="card" style={{ background: 'var(--card)', padding: '2.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1.5rem' }}>Automated Analysis Result</h3>
+            <div className="col-6" style={{ display: 'flex' }}>
+              <div className="card" style={{ width: '100%', background: 'var(--card)', padding: '2.5rem', borderRadius: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1.5rem', fontFamily: 'Outfit, sans-serif' }}>Automated Analysis Result</h3>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Calculated Credit Rating</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Calculated Rating</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--secondary)' }}>{calcResult.rating}</span>
+                      <span style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--secondary)', fontFamily: 'Outfit, sans-serif' }}>{calcResult.rating}</span>
                       <span className="badge badge-success" style={{ background: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success-border)', fontSize: '0.7rem' }}>
-                        Low Risk
+                        Low Default
                       </span>
                     </div>
                   </div>
 
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Score Metrics</div>
-                    <div style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--primary)' }} className="number-mono">
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Credit Score</div>
+                    <div style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }} className="number-mono">
                       {calcResult.score}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem', marginBottom: '2rem', fontSize: '0.9rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--muted)', fontWeight: 500 }}>Empirical Default Probability:</span>
+                    <span style={{ color: 'var(--muted)', fontWeight: 600 }}>Default Probability:</span>
                     <strong className="number-mono" style={{ color: 'var(--primary)' }}>{calcResult.risk}%</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--muted)', fontWeight: 500 }}>Approved Exposure Limit:</span>
+                    <span style={{ color: 'var(--muted)', fontWeight: 600 }}>Exposure Limit Recommended:</span>
                     <strong className="number-mono" style={{ color: 'var(--primary)' }}>₹{(calcResult.limit).toLocaleString('en-IN')}</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--muted)', fontWeight: 500 }}>Optimal Invoice Terms:</span>
-                    <strong style={{ color: 'var(--primary)' }}>{calcResult.terms}</strong>
+                    <span style={{ color: 'var(--muted)', fontWeight: 600 }}>Invoice Gearing Terms:</span>
+                    <strong style={{ color: 'var(--primary)' }}>{calcResult.terms} Days</strong>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem', background: 'var(--background)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', background: 'var(--background)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.8rem' }}>
                   <ShieldCheck size={18} style={{ color: 'var(--success)', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: '1.4' }}>
-                    This company has been successfully logged inside the credit intelligence system. You can generate a comprehensive PDF Credit Report by onboarding this account inside the portal.
+                  <span style={{ color: 'var(--muted)', lineHeight: '1.4' }}>
+                    This counterparty has been logged. Open a free trial account to run full registry downloads and export pdf reports.
                   </span>
                 </div>
               </div>
@@ -548,56 +648,133 @@ export default function RootLandingPage() {
           </div>
         </section>
 
-        {/* Feature Grid Pillars Section */}
+        {/* 21-Module Product Directory */}
         <section style={{ background: 'var(--background)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '6rem 3rem' }}>
           <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem' }}>
-                End-to-End Enterprise credit Command Center
+              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', fontFamily: 'Outfit, sans-serif' }}>
+                Enterprise Credit Intelligence Directory
               </h2>
-              <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-                Automate due diligence checks and credit rating calculations using multi-source digital endpoints.
+              <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto' }}>
+                Explore all 21 key SaaS features designed to underwrite risk and enforce data transparency.
               </p>
             </div>
 
-            <div className="dashboard-grid" style={{ gap: '2rem' }}>
-              <div className="card col-4" style={{ padding: '2rem' }}>
-                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
-                  <FileSpreadsheet size={22} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+              {productModulesList.map((module, idx) => (
+                <div 
+                  key={idx} 
+                  className="card product-card" 
+                  style={{ 
+                    padding: '1.75rem', 
+                    borderRadius: '16px', 
+                    border: '1px solid var(--border)', 
+                    background: 'var(--card)',
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '0.75rem',
+                    transition: 'all 0.25s',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setModalDetail({ title: module.title, desc: module.desc, ctaText: 'Explore Platform', link: '/login' })}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ background: 'rgba(37,99,235,0.06)', color: 'var(--primary)', padding: '0.5rem', borderRadius: '10px' }}>
+                      {module.icon}
+                    </div>
+                    <strong style={{ fontSize: '1rem', color: 'var(--primary)' }}>{module.title}</strong>
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: '1.4' }}>{module.desc}</p>
                 </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>AI Data Lake & Warehouse</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5' }}>
-                  Centralize raw financial statements, tax records, and bank data. Leverage version-controlled feature stores optimized for algorithmic trade credit assessment.
-                </p>
-              </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-              <div className="card col-4" style={{ padding: '2rem' }}>
-                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
-                  <Scale size={22} />
-                </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>Enterprise Data Governance</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5' }}>
-                  Assign data stewards, classify sensitive documents, configure key rotation policies, and manage approval workflows for exposure overrides securely.
-                </p>
-              </div>
+        {/* How It Works Timeline */}
+        <section style={{ maxWidth: '1440px', margin: '0 auto', padding: '6rem 3rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', fontFamily: 'Outfit, sans-serif' }}>
+              Step-by-Step Risk Ingestion Flow
+            </h2>
+            <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
+              How Proventa moves from raw connection hooks to continuous monitoring loops.
+            </p>
+          </div>
 
-              <div className="card col-4" style={{ padding: '2rem' }}>
-                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
-                  <Workflow size={22} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem', position: 'relative' }}>
+            {[
+              { num: '01', title: 'Secure Ingestion', desc: 'Sync API keys, link Tally Prime, or drag and drop bank reports PDF.' },
+              { num: '02', title: 'AI OCR Extraction', desc: 'Read statements balances, invoice arrays, and verify legal registers details.' },
+              { num: '03', title: 'Risk Score Engine', desc: 'Weight default indices and allocate AAA to D credit rating values.' },
+              { num: '04', title: 'KYB & Lawsuit Audit', desc: 'Audit court registries and map inter-director board connections.' },
+              { num: '05', title: 'Continuous Alerting', desc: 'Trigger webhook notifications on overdue invoice flags.' }
+            ].map((step, idx) => (
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'rgba(37,99,235,0.15)', fontFamily: 'Outfit, sans-serif' }}>{step.num}</span>
+                  <div style={{ flex: 1, height: '2px', background: 'var(--border)', display: idx === 4 ? 'none' : 'block' }} />
                 </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>AI Automation Engines</h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: '1.5' }}>
-                  Automate notifications and workflows using event triggers. Let Proventa automatically message collections agents or warn of risk fluctuations.
-                </p>
+                <div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.5rem' }}>{step.title}</h4>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: '1.4' }}>{step.desc}</p>
+                </div>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Pricing Grid Comparison */}
+        <section style={{ background: 'var(--card)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '6rem 3rem' }}>
+          <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', fontFamily: 'Outfit, sans-serif' }}>
+                Transparent Pricing Plans
+              </h2>
+              <p style={{ color: 'var(--muted)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
+                Choose the model corresponding to your audit size and monthly scan volume.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+              {[
+                { name: 'Starter Sand', price: '₹0', term: 'forever free', desc: 'Sandbox environment for test queries.', features: ['5 Counterparty Scans', 'Basic KYC validation', 'Manual PDF upload', 'Email support'] },
+                { name: 'Growth Pro', price: '₹2,999', term: 'per month', desc: 'Standard business ledger tracking.', features: ['50 Monthly Scans', 'ERP connectors (Tally/QBO)', 'Predictive DSO forecast', 'Priority support'] },
+                { name: 'Business Scale', price: '₹14,999', term: 'per month', desc: 'Deep regulatory audits and graph maps.', features: ['250 Scans / Month', 'Director network graph audit', 'Active litigation crawler', '99.9% uptime SLA'] },
+                { name: 'Unlimited Corporate', price: 'Custom Pricing', term: 'contracted annual', desc: 'Enterprise database isolation settings.', features: ['Unlimited Scans', 'Dedicated database tenancy', 'Custom DEK key rotations', '24/7 designated manager'] }
+              ].map((plan, idx) => (
+                <div key={idx} className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--background)', borderRadius: '20px', border: idx === 1 ? '2px solid var(--primary)' : '1px solid var(--border)' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }}>{plan.name}</h3>
+                    <div style={{ margin: '1rem 0 0.5rem 0' }}>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>{plan.price}</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--muted)', marginLeft: '4px' }}>/ {plan.term}</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{plan.desc}</p>
+                  </div>
+                  
+                  <div style={{ flex: 1, borderTop: '1px solid var(--border)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {plan.features.map((feat, fidx) => (
+                      <div key={fidx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.8rem' }}>
+                        <Check size={14} style={{ color: 'var(--success)' }} />
+                        <span style={{ color: 'var(--muted)' }}>{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link href="/signup" className={`btn ${idx === 1 ? 'btn-primary' : 'btn-secondary'}`} style={{ width: '100%', justifyContent: 'center' }}>
+                    Get Started
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* FAQ Accordion Section */}
-        <section style={{ maxWidth: '1440px', margin: '0 auto', padding: '6rem 3rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem' }}>
+        <section style={{ maxWidth: '800px', margin: '0 auto', padding: '6rem 1.5rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem', fontFamily: 'Outfit, sans-serif' }}>
               Frequently Asked Questions
             </h2>
             <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>
@@ -605,7 +782,7 @@ export default function RootLandingPage() {
             </p>
           </div>
 
-          <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {faqItems.map((item, idx) => (
               <div 
                 key={idx} 
@@ -614,12 +791,13 @@ export default function RootLandingPage() {
                   padding: '1.5rem', 
                   cursor: 'pointer', 
                   borderColor: activeFaq === idx ? 'var(--primary)' : 'var(--border)',
-                  background: 'var(--card)'
+                  background: 'var(--card)',
+                  borderRadius: '14px'
                 }}
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--primary)' }}>{item.q}</h3>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }}>{item.q}</h3>
                   <ChevronDown 
                     size={16} 
                     style={{ 
@@ -630,7 +808,7 @@ export default function RootLandingPage() {
                   />
                 </div>
                 {activeFaq === idx && (
-                  <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginTop: '1rem', lineHeight: '1.6' }}>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '1rem', lineHeight: '1.6' }}>
                     {item.a}
                   </p>
                 )}
@@ -897,7 +1075,7 @@ export default function RootLandingPage() {
             gap: '1.5rem'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit' }}>{modalDetail.title}</h3>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)', fontFamily: 'Outfit, sans-serif' }}>{modalDetail.title}</h3>
               <button 
                 onClick={() => setModalDetail(null)} 
                 style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}
@@ -914,44 +1092,6 @@ export default function RootLandingPage() {
                 Close
               </button>
             </div>
-          </div>
-        </div>
-      )}
-      {/* Detail Modal for Footer / Navigation Links */}
-      {modalDetail && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '1rem'
-        }}>
-          <div className="card animate-fade-in" style={{
-            background: 'var(--card)',
-            padding: '2rem',
-            borderRadius: '16px',
-            maxWidth: '450px',
-            width: '100%',
-            position: 'relative'
-          }}>
-            <button 
-              onClick={() => setModalDetail(null)}
-              style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}
-            >
-              <X size={20} />
-            </button>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '1rem' }}>{modalDetail.title}</h3>
-            <p style={{ fontSize: '1rem', color: 'var(--muted)', lineHeight: '1.6', marginBottom: '2rem' }}>{modalDetail.desc}</p>
-            <Link href={modalDetail.link} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-              {modalDetail.ctaText}
-            </Link>
           </div>
         </div>
       )}

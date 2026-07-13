@@ -226,6 +226,82 @@ Our predictive risk engine has synthesized the macro factors, industry averages,
 * **Reasoning**: Calculations model standard deviation of payment cycles against the average federal credit tightening coefficients.`;
     }
     
+    else if (query.includes('demand notice') || query.includes('recovery notice')) {
+      const match = companies.find(c => query.includes(c.name.toLowerCase()) || query.includes(c.tradeName?.toLowerCase() || '')) || companies[0];
+      const targetName = match ? match.name : 'Acme Corp';
+      reply = `### ⚖️ AI LEGAL COPILOT: RECOVERY NOTICE DRAFT
+**Notice Reference**: PROV-LEGAL/Notice/2026/1098
+**Date**: ${new Date().toLocaleDateString('en-IN')}
+
+**FORMAL DEMAND FOR PAYMENT**
+
+To,
+The Board of Directors,
+**${targetName} Private Limited**
+
+**SUBJECT: NOTICE OF DEMAND FOR UNPAID ACCOUNT BALANCES**
+
+Dear Sir/Madam,
+
+Under instructions from our client, Proventa Solutions, we hereby call upon you to settle outstanding trade debts amounting to ₹1,80,000. Despite multiple collections outreach attempts, payment terms have been breached.
+
+You are hereby requested to transfer the outstanding balance within 15 days of this notice, failing which legal proceedings under the Insolvency and Bankruptcy Code (IBC) and NI Act section 138 shall be initiated.
+
+*Advise: Send this draft to your legal counsel for review prior to courier dispatch.*`;
+    }
+    
+    else if (query.includes('legal audit') || query.includes('litigation scan')) {
+      const match = companies.find(c => query.includes(c.name.toLowerCase()) || query.includes(c.tradeName?.toLowerCase() || '')) || companies[0];
+      const targetName = match ? match.name : 'Delta Shipping Ltd';
+      reply = `### ⚖️ AI LEGAL COPILOT: LITIGATION SCAN AUDIT
+**Company Name**: ${targetName}
+**Active Civil Lawsuits**: ${match?.litigations?.length || 1} outstanding filings.
+
+**Risk Breakdown**:
+1. **Civil Dispute Case #OS/10294/2025**
+   * **Venue**: High Court of Mumbai
+   * **Amount Disputed**: ₹4,50,000
+   * **Status**: Pending (Next Hearing: 25-Aug-2026)
+   * **Risk Gearing**: Medium. Contingent liability is fully covered by liquid cash assets.
+
+*Mitigation Recommendation*: Structure terms under post-dated cheques to avoid invoice write-off exposure.`;
+    }
+    
+    else if (query.includes('roc compliance') || query.includes('compliance calendar') || query.includes('calendar summary')) {
+      reply = `### 🏢 AI COMPANY SECRETARY: COMPLIANCE CALENDAR SUMMARY
+**Fiscal Period**: FY 2026-27
+**Secretarial Filings Status**:
+
+* **Form DIR-3 KYC** (Director KYC)
+  * Due Date: 30-Sep-2026 | Status: **PENDING (Action Required)**
+* **Form AOC-4** (Financial Statements AOC-4)
+  * Due Date: 30-Oct-2026 | Status: **UPCOMING**
+* **Form MGT-7** (Annual ROC Return MGT-7)
+  * Due Date: 29-Nov-2026 | Status: **UPCOMING**
+* **Form DPT-3** (Return of Deposits DPT-3)
+  * Due Date: 30-Jun-2026 | Status: **COMPLETED (Filed)**
+
+*Recommendation*: Collect PAN and mobile verification OTPs from all active directors to clear the DIR-3 KYC requirement.`;
+    }
+    
+    else if (query.includes('board network') || query.includes('director network') || query.includes('explain board')) {
+      const match = companies.find(c => query.includes(c.name.toLowerCase()) || query.includes(c.tradeName?.toLowerCase() || '')) || companies[0];
+      const targetName = match ? match.name : 'Delta Shipping Ltd';
+      reply = `### 🔗 AI COMPANY SECRETARY: BOARD NETWORK SUMMARY
+**Company Profile**: ${targetName}
+**Active Board Members**: 2 verified directors.
+
+**Director Network Audit**:
+1. **Director 1 (DIN: 00928172)**
+   * Associated Entities: 3 active boards.
+   * Risk Rating Associations: **Low (Average rating: AA)**.
+2. **Director 2 (DIN: 00726154)**
+   * Associated Entities: 2 active boards, 1 dissolved board.
+   * Risk Rating Associations: **Warning**. Past association with *Glow Metals Ltd* (ROC Status: Strike-off).
+
+*Advisory*: No active cross-default risk warnings. Directors hold clean KYC standing.`;
+    }
+    
     else {
       // General conversational fallback with company context
       reply = `Hello! I am your **Proventa AI Copilot**. I have access to your Credit Intelligence database, which currently tracks **${companies.length}** companies.

@@ -315,10 +315,11 @@ export default function AiCopilot() {
           {/* Quick Shortcuts Chips */}
           <div style={{ padding: '0.5rem 1.25rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', borderTop: '1px solid var(--border)' }}>
             {[
-              'Compare portfolio',
-              'Credit Memo: Apex Logistics Ltd',
-              'Due Diligence: Apex Logistics Ltd',
-              'Risk forecasting'
+              'Compare portfolio risk',
+              'Draft demand notice for Acme Corp',
+              'Legal audit: Delta Shipping Ltd',
+              'Roc compliance calendar summary',
+              'Explain board network: Delta Shipping Ltd'
             ].map((shortcut, sidx) => (
               <button
                 key={sidx}
