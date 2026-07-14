@@ -256,6 +256,57 @@ export default function RootLandingPage() {
           border-color: var(--primary) !important;
           background: rgba(var(--primary-rgb), 0.02) !important;
         }
+        @media (max-width: 991px) {
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2.5rem !important;
+            padding: 3rem 1.5rem !important;
+            text-align: center;
+          }
+          .hero-text-col h1 {
+            font-size: 2.6rem !important;
+          }
+          .sectors-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            padding: 3rem 1.5rem !important;
+          }
+          .dashboard-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+            padding: 3rem 1.5rem !important;
+          }
+          .modules-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            padding: 3rem 1.5rem !important;
+          }
+          .timeline-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+            padding: 3rem 1.5rem !important;
+          }
+          .timeline-grid div div div {
+            display: none !important;
+          }
+          .pricing-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            padding: 3rem 1.5rem !important;
+          }
+          .footer-grid {
+            grid-template-columns: 1fr 1fr !important;
+            padding: 2rem 1.5rem !important;
+          }
+          header.top-nav {
+            padding: 0 1.5rem !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .sectors-grid, .modules-grid, .pricing-grid, .footer-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .hero-text-col h1 {
+            font-size: 2.2rem !important;
+          }
+        }
       `}</style>
 
       {/* Background gradients */}
@@ -345,7 +396,7 @@ export default function RootLandingPage() {
       <main style={{ flex: 1, zIndex: 10 }}>
         
         {/* Outcome-Driven Hero Section */}
-        <section className="hero-grid" style={{ maxWidth: '1440px', margin: '0 auto', padding: '5rem 3rem', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '4rem', alignItems: 'center' }}>
+        <section className="hero-grid" style={{ maxWidth: '1440px', margin: '0 auto', alignItems: 'center' }}>
           <div className="hero-text-col">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: '100px', padding: '0.35rem 1rem', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '1.5rem' }}>
               <Sparkles size={14} />
@@ -482,7 +533,7 @@ export default function RootLandingPage() {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+            <div className="sectors-grid" style={{ gap: '1.5rem' }}>
               {builtForSectors.map((sector, idx) => (
                 <div 
                   key={idx} 
@@ -660,7 +711,7 @@ export default function RootLandingPage() {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+            <div className="modules-grid" style={{ gap: '1.5rem' }}>
               {productModulesList.map((module, idx) => (
                 <div 
                   key={idx} 
@@ -702,7 +753,7 @@ export default function RootLandingPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2rem', position: 'relative' }}>
+          <div className="timeline-grid" style={{ gap: '2rem', position: 'relative' }}>
             {[
               { num: '01', title: 'Secure Ingestion', desc: 'Sync API keys, link Tally Prime, or drag and drop bank reports PDF.' },
               { num: '02', title: 'AI OCR Extraction', desc: 'Read statements balances, invoice arrays, and verify legal registers details.' },
@@ -736,7 +787,7 @@ export default function RootLandingPage() {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+            <div className="pricing-grid" style={{ gap: '1.5rem' }}>
               {[
                 { name: 'Starter Sand', price: '₹0', term: 'forever free', desc: 'Sandbox environment for test queries.', features: ['5 Counterparty Scans', 'Basic KYC validation', 'Manual PDF upload', 'Email support'] },
                 { name: 'Growth Pro', price: '₹2,999', term: 'per month', desc: 'Standard business ledger tracking.', features: ['50 Monthly Scans', 'ERP connectors (Tally/QBO)', 'Predictive DSO forecast', 'Priority support'] },
@@ -820,7 +871,7 @@ export default function RootLandingPage() {
 
       {/* Premium B2B Footer */}
       <footer style={{ borderTop: '1px solid var(--border)', background: 'var(--card)', padding: '4rem 3rem' }}>
-        <div className="dashboard-grid" style={{ maxWidth: '1440px', margin: '0 auto', gap: '2rem', marginBottom: '3rem' }}>
+        <div className="footer-grid" style={{ maxWidth: '1440px', margin: '0 auto', gap: '2rem', marginBottom: '3rem' }}>
           <div className="col-4">
             <div className="logo-container" style={{ marginBottom: '1.5rem' }}>
               <div className="logo-icon" style={{ background: 'var(--primary)', color: 'white', borderRadius: '8px' }}>P</div>
