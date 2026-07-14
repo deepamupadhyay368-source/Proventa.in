@@ -1,18 +1,36 @@
 {
-  "name": "Proventa Credit Intelligence",
+  "name": "Proventa Enterprise AI",
   "short_name": "Proventa",
-  "description": "Enterprise AI Credit Intelligence Platform for SMEs",
+  "description": "Enterprise AI Credit Intelligence and Decisioning Platform",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060a12",
+  "background_color": "#0a0a0b",
   "theme_color": "#2563eb",
-  "orientation": "portrait",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["finance", "business", "productivity"],
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View AI Insights and Portfolio Risk",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Copilot",
+      "short_name": "Copilot",
+      "description": "Talk to the Financial AI Agent",
+      "url": "/dashboard/ai",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
     }
   ]
 }
