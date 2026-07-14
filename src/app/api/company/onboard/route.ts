@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { logEvent } from '@/lib/logger';
-import { calculateCreditAssessment } from '@/lib/creditEngine';
+import { calculateCreditAssessment, calculateCreditAssessmentAsync } from '@/lib/creditEngine';
 import { getTenantDEK, encryptWithDEK } from '@/lib/encryption';
 import { verifyPan, verifyGst } from '@/lib/services/kyb';
 import { analyzeStatement } from '@/lib/services/bankAnalyzer';
@@ -209,7 +209,7 @@ export async function POST(request: Request) {
       }
 
       // 3. Compute credit scoring and create main assessment
-      const assessment = calculateCreditAssessment(name, {
+      const assessment = await calculateCreditAssessmentAsync(name, {
         annualRevenue,
         annualTurnover,
         employeeCount,
