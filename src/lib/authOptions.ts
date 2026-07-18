@@ -5,7 +5,7 @@ import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
-import { verifyPassword } from "@/lib/auth";
+import { verifyPassword } from "@/lib/auth-utils";
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(db) as any,

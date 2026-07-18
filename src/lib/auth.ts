@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./authOptions";
-import argon2 from "argon2";
 import { db } from "./db";
+import { hashPassword, verifyPassword } from "./auth-utils";
 
 export interface SessionPayload {
   userId: string;
@@ -10,31 +10,8 @@ export interface SessionPayload {
   organizationId: string | null;
 }
 
-/**
- * Hash password using Argon2id parameters
- */
-export async function hashPassword(password: string): Promise<string> {
-  if (password.length < 14) {
-    throw new Error('Password must be at least 14 characters long.');
-  }
-  return argon2.hash(password, {
-    type: argon2.argon2id,
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 4,
-  });
-}
-
-/**
- * Verify password using Argon2id
- */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  try {
-    return await argon2.verify(hash, password);
-  } catch (err) {
-    return false;
-  }
-}
+// Re-export for backwards compatibility with any other files using this
+export { hashPassword, verifyPassword };
 
 /**
  * Retrieves the current session securely from NextAuth
