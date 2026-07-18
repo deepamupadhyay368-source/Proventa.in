@@ -50,6 +50,7 @@ model Organization {
   Invoice            Invoice[]
   Alert              Alert[]
   AlertRule          AlertRule[]
+  ForecastRecord     ForecastRecord[]
 }
 
 model CompanyProfile {
@@ -444,4 +445,16 @@ model CompanyEvent {
   description String
   aiSummary   String?
   timestamp   DateTime       @default(now())
+}
+
+model ForecastRecord {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  forecastType   String
+  period         String
+  dataPoints     String
+  summary        String
+  insights       String
+  generatedAt    DateTime     @default(now())
 }
