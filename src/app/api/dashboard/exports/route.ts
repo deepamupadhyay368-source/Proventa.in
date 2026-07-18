@@ -128,14 +128,14 @@ export async function GET(request: NextRequest) {
             currency: inv.currency,
             status: inv.status,
             dueDate: inv.dueDate,
-            paidAt: inv.paidAt,
+            paidAt: inv.paidDate,
             issuedAt: inv.createdAt,
-            customer: inv.customer
+            customer: inv.customerId
               ? {
-                  id: inv.customer.id,
-                  name: inv.customer.name,
-                  email: inv.customer.email,
-                  gstin: inv.customer.gstin,
+                  id: inv.customerId.id,
+                  name: inv.customerId.name,
+                  email: inv.customerId.email,
+                  gstin: inv.customerId.gstin,
                 }
               : null,
           })),

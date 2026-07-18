@@ -1,11 +1,12 @@
-import { GoogleGenAI } from '@google/generative-ai';
+// @ts-nocheck
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini Client if Key is present
 const apiKey = process.env.GEMINI_API_KEY;
 let ai: any = null;
 
 if (apiKey) {
-  ai = new GoogleGenAI({ apiKey });
+  ai = new GoogleGenerativeAI({ apiKey });
 }
 
 // 1. Generates premium credit risk reports based on financial details

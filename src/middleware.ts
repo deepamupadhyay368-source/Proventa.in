@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/request';
+import type { NextRequest } from 'next/server';
 
 // In-memory rate limiting map
 // Tracks: key = IP, value = { count: number, resetTime: number }

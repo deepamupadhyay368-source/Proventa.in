@@ -560,7 +560,7 @@ export default function RootLandingPage() {
 
             <div className="dashboard-grid" style={{ gap: '2rem' }}>
               <div className="card col-4" style={{ padding: '2rem' }}>
-                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
+                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
                   <FileSpreadsheet size={22} />
                 </div>
                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>AI Data Lake & Warehouse</h3>
@@ -570,7 +570,7 @@ export default function RootLandingPage() {
               </div>
 
               <div className="card col-4" style={{ padding: '2rem' }}>
-                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
+                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
                   <Scale size={22} />
                 </div>
                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>Enterprise Data Governance</h3>
@@ -580,7 +580,7 @@ export default function RootLandingPage() {
               </div>
 
               <div className="card col-4" style={{ padding: '2rem' }}>
-                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContainer: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
+                <div style={{ width: '48px', height: '48px', background: 'var(--info-bg)', border: '1px solid var(--info-border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)', marginBottom: '1.5rem', paddingLeft: '0.85rem' }}>
                   <Workflow size={22} />
                 </div>
                 <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.75rem' }}>AI Automation Engines</h3>

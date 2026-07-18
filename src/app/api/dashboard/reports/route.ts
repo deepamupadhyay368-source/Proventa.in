@@ -335,7 +335,7 @@ export async function GET(request: Request) {
 
       <div class="section-title">AI Credit Justification Metrics</div>
       <ul class="bullet-points">
-        ${explanations.map(exp => `<li>${exp}</li>`).join('')}
+        ${explanations.map((exp: any) => `<li>${exp}</li>`).join('')}
       </ul>
 
       <div class="section-title">Litigation & Dispute Filings</div>

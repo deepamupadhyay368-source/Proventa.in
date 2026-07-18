@@ -410,7 +410,7 @@ export default function PortfolioAnalytics() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <h2 style={{ fontSize: '1.6rem', fontFamily: 'Outfit', fontWeight: 800 }}>{selectedCompany.name}</h2>
                   {watchlist.includes(selectedCompany.id) && (
-                    <Bookmark size={18} fill="var(--warning)" stroke="var(--warning)" title="Watchlist item" />
+                    <Bookmark size={18} fill="var(--warning)" stroke="var(--warning)"  />
                   )}
                 </div>
                 <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
@@ -422,7 +422,7 @@ export default function PortfolioAnalytics() {
                 <button onClick={exportCsv} className="btn btn-secondary btn-sm">
                   <Download size={14} /> Export CSV
                 </button>
-                <button onClick={printPdf} className="btn btn-primary btn-sm">
+                <button onClick={window.print} className="btn btn-primary btn-sm">
                   Print Report
                 </button>
               </div>

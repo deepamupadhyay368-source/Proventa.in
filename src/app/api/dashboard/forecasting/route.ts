@@ -169,9 +169,9 @@ Guidelines:
     const midProjected = dataPoints[Math.floor(months / 2)]?.projected || 0;
 
     const kpis = [
-      { label: `Projected at ${period}`, value: type === 'revenue' || type === 'cashflow' ? \`₹\${(lastProjected / 100000).toFixed(1)}L\` : type === 'dso' ? \`\${lastProjected} days\` : \`\${lastProjected.toFixed(1)}%\`, trend: type === 'dso' || type === 'risk' ? 'down' : 'up' },
-      { label: \`Midpoint (\${Math.floor(months / 2)}M)\`, value: type === 'revenue' || type === 'cashflow' ? \`₹\${(midProjected / 100000).toFixed(1)}L\` : type === 'dso' ? \`\${midProjected} days\` : \`\${midProjected?.toFixed(1)}%\`, trend: 'up' },
-      { label: 'Forecast Confidence', value: \`\${Math.round((dataPoints[dataPoints.length - 1]?.confidence || 0) * 100)}%\`, trend: 'neutral' },
+      { label: `Projected at ${period}`, value: type === 'revenue' || type === 'cashflow' ? `₹${(lastProjected / 100000).toFixed(1)}L` : type === 'dso' ? `${lastProjected} days` : `${lastProjected.toFixed(1)}%`, trend: type === 'dso' || type === 'risk' ? 'down' : 'up' },
+      { label: `Midpoint (${Math.floor(months / 2)}M)`, value: type === 'revenue' || type === 'cashflow' ? `₹${(midProjected / 100000).toFixed(1)}L` : type === 'dso' ? `${midProjected} days` : `${midProjected?.toFixed(1)}%`, trend: 'up' },
+      { label: 'Forecast Confidence', value: `${Math.round((dataPoints[dataPoints.length - 1]?.confidence || 0) * 100)}%`, trend: 'neutral' },
     ];
 
     // Store forecast record asynchronously

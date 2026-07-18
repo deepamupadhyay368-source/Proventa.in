@@ -83,7 +83,8 @@ model CompanyProfile {
   directors         String? // Semi-colon separated
   partners          String? // Semi-colon separated
   authSignatory     String?
-  logoUrl           String?
+  companyName String?
+  logoUrl String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   documents         Document[]
@@ -395,7 +396,9 @@ model Invoice {
   invoiceNumber  String
   description    String?
   amount         Float
-  taxRate        Float        @default(0)
+  taxRate Float @default(0)
+  taxAmount Float @default(0)
+  totalExposure Float @default(0)
   dueDate        DateTime
   status         String       @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
   paidAmount     Float        @default(0)
@@ -457,4 +460,35 @@ model ForecastRecord {
   summary        String
   insights       String
   generatedAt    DateTime     @default(now())
+}
+
+model TeamInvite {
+  id String @id @default(uuid())
+  organizationId String
+  email String
+  role String
+  token String @unique
+  expiresAt DateTime
+  accepted Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model BrandConfig {
+  id String @id @default(uuid())
+  organizationId String @unique
+  logoUrl String?
+  primaryColor String?
+  createdAt DateTime @default(now())
+}
+
+model OnboardingStep {
+  id String @id @default(uuid())
+  organizationId String @unique
+  profileDone Boolean @default(false)
+  gstLinked Boolean @default(false)
+  bankLinked Boolean @default(false)
+  firstAssessment Boolean @default(false)
+  teamInvited Boolean @default(false)
+  dismissed Boolean @default(false)
+  createdAt DateTime @default(now())
 }
