@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { generateForecastingInsights } from '@/lib/services/openai';
 
 type ForecastType = 'revenue' | 'cashflow' | 'dso' | 'risk';
 type ForecastPeriod = '3M' | '6M' | '12M';
@@ -214,22 +213,10 @@ export async function GET(req: NextRequest) {
         break;
     }
 
-    let insights = generateInsights(type, dataPoints, {
+    const insights = generateInsights(type, dataPoints, {
       customerCount: customers.length,
       industry: companyProfile?.industry || 'General',
     });
-
-    // Attempt OpenAI insights override
-    try {
-      const historyPoints = dataPoints.filter(d => d.actual !== undefined).map(d => d.actual);
-      const currentVal = lastProjected;
-      const aiForecast = await generateForecastingInsights(type, period, currentVal, historyPoints);
-      if (aiForecast && aiForecast.insights && aiForecast.insights.length > 0) {
-        insights = aiForecast.insights;
-      }
-    } catch (err) {
-      console.warn('[OPENAI FORECAST WARNING]: OpenAI forecast generator failed. Falling back.', err);
-    }
 
     // Store forecast record
     await db.forecastRecord.create({

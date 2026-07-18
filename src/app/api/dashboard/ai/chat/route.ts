@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth';
 import { logEvent } from '@/lib/logger';
 import { guardEndpoint } from '@/lib/tenant';
 import { getTenantDEK, decryptWithDEK } from '@/lib/encryption';
+import OpenAI from 'openai';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,21 +126,42 @@ The Finance Agent has evaluated your corporate metrics:
       // Route to Credit Agent
       agentType = 'CREDIT';
       confidenceScore = 96;
-      reasoning = 'Parsed company assessments, risk matrix, and court litigations.';
+      reasoning = 'Parsed live customer data, invoices, and events from database via GPT-4o.';
+
+      // Fetch rich customer data
+      const customers = await db.customer.findMany({
+        where: { organizationId: orgId },
+        include: { invoices: true, events: true },
+        take: 10
+      });
+
+      const customerContext = JSON.stringify(customers, null, 2);
+
+      const systemPrompt = `You are the Proventa Credit Copilot. Evaluate the credit risk, scores, and ratings based on the user's query and the following live customer database records.
       
-      if (primaryCompany && primaryCompany.assessments[0]) {
-        const assess = primaryCompany.assessments[0];
-        citations.push({ source: 'CreditAssessment', field: 'creditScore', value: assess.creditScore });
-        citations.push({ source: 'CompanyProfile', field: 'litigationsCount', value: primaryCompany.litigations.length });
-        
-        reply = `### 🛡️ Credit Risk Overview: ${primaryCompany.name}
-The Credit Agent has retrieved your assessment profile:
-* **Credit Rating**: **${assess.creditRating}** (Score: **${assess.creditScore}/900**)
-* **Risk Score**: **${assess.riskScore}%** (${assess.riskScore > 65 ? 'High Risk' : 'Satisfactory Standing'})
-* **Active Litigations**: Detected **${primaryCompany.litigations.length}** pending case(s) in HC record logs.
-* **AI Advisor Recommendation**: Gearing ratios indicate good liquidity, but active litigation limits suggested terms to Net-15 days.`;
-      } else {
-        reply = 'No credit scores or active risk assessments found for your organization profile.';
+      Live Data Context:
+      ${customerContext}
+      
+      Format your response in a professional Markdown format, highlighting key risk metrics, overdue invoices, and major company events.`;
+
+      try {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' });
+        const res = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: query }
+          ]
+        });
+        reply = res.choices[0].message.content || 'Credit analysis complete, but no response generated.';
+      } catch (err: any) {
+        console.error('OpenAI Credit Copilot Error:', err);
+        reply = `### 🛡️ Credit Risk Overview: ${primaryCompany?.name || 'Company'}
+The Credit Agent encountered an AI generation error or missing API key. 
+Falling back to basic data.
+
+* **Credit Rating**: **Basic**
+* **Active Litigations**: Detected **${primaryCompany?.litigations?.length || 0}** pending case(s).`;
       }
     } 
     

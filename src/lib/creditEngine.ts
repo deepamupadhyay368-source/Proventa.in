@@ -1,5 +1,3 @@
-import { analyzeCreditScore } from './services/openai';
-
 export interface FinancialMetrics {
   annualRevenue: number;
   annualTurnover: number;
@@ -131,34 +129,4 @@ export function calculateCreditAssessment(companyName: string, data: FinancialMe
     },
     explanations
   };
-}
-
-export async function calculateCreditAssessmentAsync(companyName: string, data: FinancialMetrics): Promise<AssessmentResult> {
-  const baseResult = calculateCreditAssessment(companyName, data);
-
-  // Attempt to refine using OpenAI API
-  try {
-    const aiResult = await analyzeCreditScore(companyName, data);
-    
-    // Override with OpenAI output if it was successfully fetched
-    if (aiResult.rating) {
-      baseResult.creditRating = aiResult.rating;
-      baseResult.riskScore = aiResult.riskScore;
-      baseResult.recommendedLimit = aiResult.recommendedLimit;
-      baseResult.explanations = [
-        aiResult.explanation,
-        ...baseResult.explanations.slice(1) // Keep the detailed mathematical explanations but prepend AI reasoning
-      ];
-
-      // Reverse map credit score slightly to match rating for visual alignment
-      const scoreMap: Record<string, number> = {
-        'AAA': 850, 'AA': 780, 'A': 720, 'BBB': 670, 'BB': 620, 'B': 520, 'C': 420, 'D': 350
-      };
-      baseResult.creditScore = scoreMap[aiResult.rating] || baseResult.creditScore;
-    }
-  } catch (err) {
-    console.warn('[OPENAI REFINE ERROR]: Failed to refine scoring via OpenAI, using default formula.', err);
-  }
-
-  return baseResult;
 }

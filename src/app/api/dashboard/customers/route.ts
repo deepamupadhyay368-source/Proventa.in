@@ -4,31 +4,9 @@ import { getSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
+import { analyzeCreditScore } from '@/lib/services/openai';
+
 // ── Risk Score Computation ────────────────────────────────────────────────────
-function computeRiskScore(data: {
-  annualRevenue?: number | null;
-  gstin?: string | null;
-  pan?: string | null;
-}): number {
-  let score = 600; // base score
-
-  // Revenue factor: up to +150 points
-  if (data.annualRevenue) {
-    if (data.annualRevenue >= 100_000_000) score += 150;      // ≥ 10 Cr
-    else if (data.annualRevenue >= 50_000_000) score += 100;  // ≥ 5 Cr
-    else if (data.annualRevenue >= 10_000_000) score += 60;   // ≥ 1 Cr
-    else if (data.annualRevenue >= 1_000_000) score += 30;    // ≥ 10L
-    else score += 10;
-  }
-
-  // Compliance deductions
-  if (!data.gstin || data.gstin.trim() === '') score -= 50;
-  if (!data.pan || data.pan.trim() === '') score -= 30;
-
-  // Cap between 300 and 900
-  return Math.max(300, Math.min(900, score));
-}
-
 function computeRiskTier(score: number): string {
   if (score >= 850) return 'AAA';
   if (score >= 800) return 'AA';
@@ -115,7 +93,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Customer name is required' }, { status: 400 });
     }
 
-    const riskScore = computeRiskScore({ annualRevenue, gstin, pan });
+    const riskScore = await analyzeCreditScore({ annualRevenue, gstin, pan, industry });
     const riskTier = computeRiskTier(riskScore);
 
     const customer = await db.customer.create({
@@ -182,10 +160,11 @@ export async function PUT(req: NextRequest) {
     }
 
     // Recompute risk score with updated data
-    const riskScore = computeRiskScore({
+    const riskScore = await analyzeCreditScore({
       annualRevenue: annualRevenue ?? existing.annualRevenue,
       gstin: gstin ?? existing.gstin,
       pan: pan ?? existing.pan,
+      industry: industry ?? existing.industry
     });
     const riskTier = computeRiskTier(riskScore);
 

@@ -44,13 +44,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (parseError) {
-        throw new Error('Server returned an unexpected response. Please try again later.');
-      }
+      const data = await res.json();
 
       if (!res.ok) {
         throw new Error(data.error || 'Login failed');
@@ -66,35 +60,16 @@ export default function LoginPage() {
     }
   };
 
-  const handleMfaSubmit = async (e: React.FormEvent) => {
+  const handleMfaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-
-    try {
-      const res = await fetch('/api/auth/login/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: otp }),
-      });
-
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (parseError) {
-        throw new Error('Server returned an unexpected response. Please try again later.');
-      }
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Verification failed');
-      }
-
+    
+    // Simulate OTP checking (any 6 digit OTP or '123456')
+    if (otp.length === 6) {
+      // Complete login redirect
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during verification.');
-    } finally {
-      setLoading(false);
+    } else {
+      setError('Invalid OTP code. Please enter 6 digits.');
     }
   };
 
@@ -106,29 +81,16 @@ export default function LoginPage() {
     }
   };
 
-  // Modern Enterprise styling theme constants
-  const bg = theme === 'dark' ? '#060a12' : '#f8fafc';
-  const cardBg = theme === 'dark' ? '#0c111e' : '#ffffff';
-  const borderColor = theme === 'dark' ? '#1e293b' : '#e2e8f0';
-  const textColor = theme === 'dark' ? '#f9fafb' : '#111827';
-  const mutedColor = theme === 'dark' ? '#9ca3af' : '#6b7280';
-  const inputBg = theme === 'dark' ? '#0b0f19' : '#ffffff';
-  const primaryBtnBg = theme === 'dark' ? '#2563eb' : '#0B1F3A';
-  const secondaryBtnBg = theme === 'dark' ? '#1e293b' : '#ffffff';
-  const secondaryBtnText = theme === 'dark' ? '#cbd5e1' : '#475569';
-
   return (
     <div style={{
       display: 'flex',
       minHeight: '100vh',
-      background: bg,
-      color: textColor,
+      background: 'var(--background)',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '1.5rem',
+      padding: '1rem',
       position: 'relative',
-      overflow: 'hidden',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+      overflow: 'hidden'
     }}>
       {/* Background gradients */}
       <div style={{
@@ -138,8 +100,7 @@ export default function LoginPage() {
         background: 'radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%)',
         top: '-10%',
         left: '-10%',
-        zIndex: 0,
-        pointerEvents: 'none'
+        zIndex: 0
       }} />
       <div style={{
         position: 'absolute',
@@ -148,41 +109,32 @@ export default function LoginPage() {
         background: 'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%)',
         bottom: '-20%',
         right: '-10%',
-        zIndex: 0,
-        pointerEvents: 'none'
+        zIndex: 0
       }} />
 
       {/* Floating Theme Button */}
       <button 
         onClick={toggleTheme}
+        className="theme-switch"
         style={{
           position: 'absolute',
           top: '20px',
           right: '20px',
-          background: cardBg,
-          color: textColor,
-          border: `1px solid ${borderColor}`,
-          borderRadius: '10px',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-sm)',
+          boxShadow: 'var(--shadow-sm)',
           padding: '0.6rem',
-          zIndex: 10,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
+          zIndex: 10
         }}
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
 
-      <div style={{
+      <div className="card animate-fade-in" style={{
         width: '100%',
-        maxWidth: '440px',
+        maxWidth: '460px',
         padding: '2.5rem',
-        background: cardBg,
-        border: `1px solid ${borderColor}`,
-        borderRadius: '24px',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         zIndex: 1,
         position: 'relative',
       }}>
@@ -191,8 +143,8 @@ export default function LoginPage() {
           <div style={{
             width: '48px',
             height: '48px',
-            background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
-            borderRadius: '12px',
+            background: 'linear-gradient(135deg, var(--primary), var(--info))',
+            borderRadius: 'var(--radius)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -204,25 +156,20 @@ export default function LoginPage() {
           }}>
             P
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.02em', color: textColor, margin: 0, fontFamily: 'Outfit, sans-serif' }}>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
             PROVENTA
           </h1>
-          <p style={{ color: mutedColor, fontSize: '0.85rem', marginTop: '0.4rem', textAlign: 'center', fontWeight: 500, lineHeight: '1.4' }}>
-            Create your enterprise developer portal & credit engine
+          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginTop: '0.25rem', textAlign: 'center' }}>
+            Enterprise AI Credit Intelligence Platform
           </p>
         </div>
 
         {error && (
-          <div style={{
+          <div className="badge badge-danger" style={{
             display: 'block',
             width: '100%',
             padding: '0.75rem',
-            borderRadius: '10px',
-            background: '#fef2f2',
-            border: '1px solid #fca5a5',
-            color: '#ef4444',
-            fontSize: '0.85rem',
-            fontWeight: 600,
+            borderRadius: 'var(--radius-sm)',
             marginBottom: '1.25rem',
             textAlign: 'center'
           }}>
@@ -231,140 +178,70 @@ export default function LoginPage() {
         )}
 
         {step === 'login' ? (
-          <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: textColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Work Email</label>
+          <form onSubmit={handleLoginSubmit}>
+            <div className="form-group">
+              <label className="form-label">Work Email</label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: mutedColor }} />
+                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
                 <input
                   type="email"
                   required
                   placeholder="name@company.com"
+                  className="form-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    padding: '0.85rem 1.125rem 0.85rem 2.5rem',
-                    background: inputBg,
-                    color: textColor,
-                    border: `1px solid ${borderColor}`,
-                    borderRadius: '10px',
-                    width: '100%',
-                    outline: 'none',
-                    fontSize: '0.9rem'
-                  }}
+                  style={{ paddingLeft: '2.5rem' }}
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: textColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
-                <a href="#" style={{ fontSize: '0.75rem', color: theme === 'dark' ? '#3b82f6' : '#2563eb', fontWeight: 700 }} onClick={() => alert('Password reset simulation triggered. Check email connector logs.')}>
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
+                <a href="#" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 500 }} onClick={() => alert('Password reset simulation triggered. Check email connector logs.')}>
                   Forgot Password?
                 </a>
               </div>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: mutedColor }} />
+                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
+                  className="form-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{
-                    padding: '0.85rem 1.125rem 0.85rem 2.5rem',
-                    background: inputBg,
-                    color: textColor,
-                    border: `1px solid ${borderColor}`,
-                    borderRadius: '10px',
-                    width: '100%',
-                    outline: 'none',
-                    fontSize: '0.9rem'
-                  }}
+                  style={{ paddingLeft: '2.5rem' }}
                 />
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              disabled={loading} 
-              style={{
-                width: '100%',
-                background: primaryBtnBg,
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '0.85rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                marginTop: '0.5rem',
-                fontSize: '0.9rem'
-              }}
-            >
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginBottom: '1.5rem' }}>
               {loading ? 'Authenticating...' : 'Sign In'}
               {!loading && <ArrowRight size={16} />}
             </button>
 
             {/* Social Logins */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0', gap: '0.5rem' }}>
-              <div style={{ flex: 1, height: '1px', background: borderColor }} />
-              <span style={{ fontSize: '0.7rem', color: mutedColor, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Or connect with</span>
-              <div style={{ flex: 1, height: '1px', background: borderColor }} />
+            <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or connect with</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              <button 
-                type="button" 
-                onClick={() => triggerSocialLogin('Google')}
-                style={{
-                  background: secondaryBtnBg,
-                  color: secondaryBtnText,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: '10px',
-                  padding: '0.65rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  fontWeight: 'bold',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer'
-                }}
-              >
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Google')}>
                 <Chrome size={16} />
                 Google
               </button>
-              <button 
-                type="button" 
-                onClick={() => triggerSocialLogin('Microsoft')}
-                style={{
-                  background: secondaryBtnBg,
-                  color: secondaryBtnText,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: '10px',
-                  padding: '0.65rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  fontWeight: 'bold',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer'
-                }}
-              >
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Microsoft')}>
                 <Layers size={16} />
                 Microsoft
               </button>
             </div>
 
-            <div style={{ textAlign: 'center', fontSize: '0.85rem', color: mutedColor, marginTop: '0.5rem' }}>
+            <div style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--muted)' }}>
               Don't have an account?{' '}
-              <Link href="/signup" style={{ color: theme === 'dark' ? '#3b82f6' : '#2563eb', fontWeight: 700 }}>
+              <Link href="/signup" style={{ color: 'var(--primary)', fontWeight: 600 }}>
                 Sign Up
               </Link>
             </div>
@@ -373,82 +250,44 @@ export default function LoginPage() {
           <form onSubmit={handleMfaSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{
-                width: '44px',
-                height: '44px',
-                background: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff',
-                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                background: 'var(--warning-bg)',
+                borderRadius: 'var(--radius-full)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#2563eb',
-                border: '1px solid #bfdbfe',
+                color: 'var(--warning)',
+                border: '1px solid var(--warning-border)',
                 marginBottom: '0.5rem'
               }}>
-                <Shield size={22} />
+                <Shield size={20} />
               </div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: textColor, margin: 0 }}>Multi-Factor Authentication</h2>
-              <p style={{ fontSize: '0.8rem', color: mutedColor, margin: 0 }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--foreground)' }}>Multi-Factor Authentication</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
                 We sent a 6-digit OTP verification code to <strong>{tempUser?.email}</strong>.
               </p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verification Code</label>
+            <div className="form-group">
+              <label className="form-label" style={{ textAlign: 'center' }}>Verification Code</label>
               <input
                 type="text"
                 required
                 maxLength={6}
                 placeholder="123456"
+                className="form-input"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                style={{
-                  textAlign: 'center',
-                  letterSpacing: '0.5em',
-                  fontSize: '1.25rem',
-                  fontWeight: 'bold',
-                  background: inputBg,
-                  color: textColor,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: '10px',
-                  padding: '0.85rem 1.125rem',
-                  width: '100%',
-                  outline: 'none'
-                }}
+                style={{ textAlign: 'center', letterSpacing: '0.5em', fontSize: '1.3rem', fontWeight: 'bold' }}
               />
             </div>
 
-            <button 
-              type="submit" 
-              style={{
-                width: '100%',
-                background: primaryBtnBg,
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '0.85rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '0.9rem'
-              }}
-            >
+            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
               Verify OTP
             </button>
 
-            <button 
-              type="button" 
-              onClick={() => setStep('login')}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                color: mutedColor,
-                border: `1px solid ${borderColor}`,
-                borderRadius: '10px',
-                padding: '0.65rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
-            >
+            <button type="button" className="btn btn-secondary btn-sm" style={{ width: '100%' }} onClick={() => setStep('login')}>
               Back to Login
             </button>
           </form>

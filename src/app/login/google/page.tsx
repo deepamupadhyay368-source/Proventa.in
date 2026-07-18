@@ -32,14 +32,7 @@ export default function GoogleSSOPage() {
         })
       });
 
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (parseError) {
-        throw new Error('Server returned an unexpected response. Please try again later.');
-      }
-
+      const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Google Login failed');
 
       // Check if user has an onboarded company or redirect to onboarding / dashboard
@@ -94,7 +87,7 @@ export default function GoogleSSOPage() {
         </div>
 
         <h1 style={{ fontSize: '1.5rem', fontWeight: 400, color: '#202124', textAlign: 'center', margin: '0 0 0.5rem 0' }}>
-          Sign in with Google
+          {customMode ? 'Create new Google SSO Account' : 'Sign in with Google'}
         </h1>
         <p style={{ fontSize: '0.95rem', color: '#202124', marginBottom: '2rem', textAlign: 'center' }}>
           to continue to <strong style={{ color: '#1a73e8' }}>proventa.ai</strong>
@@ -254,7 +247,7 @@ export default function GoogleSSOPage() {
                   fontWeight: 600
                 }}
               >
-                Continue
+                Confirm SSO
               </button>
             </div>
           </form>

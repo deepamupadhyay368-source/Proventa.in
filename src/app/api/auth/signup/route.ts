@@ -16,87 +16,58 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Password must be at least 14 characters long.' }, { status: 400 });
     }
 
-    let existingUser = null;
-    try {
-      existingUser = await db.user.findUnique({ where: { email } });
-    } catch (e) {
-      console.warn("DB read failed on signup check, assuming user doesn't exist.");
-    }
-
+    const existingUser = await db.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
     }
 
-    // Hash password using bcrypt
+    // Hash password using Argon2id
     const passwordHash = await hashPassword(password);
 
-    let result;
-    try {
-      // Create organization and user in a transaction
-      result = await db.$transaction(async (prisma) => {
-        // Generate unique DEK key for this tenant and encrypt with master KEK
-        const newDEK = generateDEK();
-        const { encryptedDEK, iv } = encryptDEK(newDEK);
+    // Create organization and user in a transaction
+    const result = await db.$transaction(async (prisma) => {
+      // Generate unique DEK key for this tenant and encrypt with master KEK
+      const newDEK = generateDEK();
+      const { encryptedDEK, iv } = encryptDEK(newDEK);
 
-        // 1. Create Organization
-        const org = await prisma.organization.create({
-          data: {
-            name: orgName || `${name}'s Organization`,
-            planType: 'FREE',
-            subscriptionStatus: 'FREE_TRIAL',
-            encryptedDEK,
-            dekIV: iv
-          },
-        });
-
-        // 2. Create User linked to the Organization
-        const user = await prisma.user.create({
-          data: {
-            name,
-            email,
-            passwordHash,
-            role: 'ADMIN',
-            organizationId: org.id,
-          },
-        });
-
-        // 3. Create default Welcome notification
-        await prisma.notification.create({
-          data: {
-            organizationId: org.id,
-            title: 'Welcome to Proventa!',
-            message: 'Get started by completing your Company Onboarding wizard.',
-            type: 'SUCCESS',
-          },
-        });
-
-        return { user, org };
+      // 1. Create Organization
+      const org = await prisma.organization.create({
+        data: {
+          name: orgName || `${name}'s Organization`,
+          planType: 'FREE',
+          subscriptionStatus: 'FREE_TRIAL',
+          encryptedDEK,
+          dekIV: iv
+        },
       });
 
-      // Write audit log
-      try {
-        await logEvent(result.user.id, result.user.email, 'SIGNUP', 'User signed up and organization created.');
-      } catch (e) {}
-
-    } catch (dbError) {
-      console.warn('Database write failed (likely Vercel read-only SQLite). Falling back to mock signup.', dbError);
-      // Fallback for Vercel SQLite Read-Only environment
-      const mockUserId = `mock-user-${Date.now()}`;
-      const mockOrgId = `mock-org-${Date.now()}`;
-      result = {
-        user: {
-          id: mockUserId,
+      // 2. Create User linked to the Organization
+      // If it is the first user, default their role to ADMIN
+      const user = await prisma.user.create({
+        data: {
           name,
           email,
+          passwordHash,
           role: 'ADMIN',
-          organizationId: mockOrgId,
+          organizationId: org.id,
         },
-        org: {
-          id: mockOrgId,
-          name: orgName || `${name}'s Organization`,
-        }
-      };
-    }
+      });
+
+      // 3. Create default Welcome notification
+      await prisma.notification.create({
+        data: {
+          organizationId: org.id,
+          title: 'Welcome to Proventa!',
+          message: 'Get started by completing your Company Onboarding wizard.',
+          type: 'SUCCESS',
+        },
+      });
+
+      return { user, org };
+    });
+
+    // Write audit log
+    await logEvent(result.user.id, result.user.email, 'SIGNUP', 'User signed up and organization created.');
 
     // Set session cookie
     await setSession({
