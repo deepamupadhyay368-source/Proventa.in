@@ -182,19 +182,18 @@ export default function CollectionsDashboard() {
         </div>
       </div>
 
-      {/* Highest Risk Customers */}
       <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/60 rounded-2xl overflow-hidden">
-        <div className="p-6 border-b border-slate-800/60 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-slate-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <h2 className="text-xl font-semibold text-white flex items-center gap-2">
             <AlertCircle className="text-rose-400" size={20} />
             Highest Risk Customers
           </h2>
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input 
               type="text" 
               placeholder="Search customers..." 
-              className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200 w-64 placeholder:text-slate-500"
+              className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-200 w-full sm:w-64 placeholder:text-slate-500"
             />
           </div>
         </div>

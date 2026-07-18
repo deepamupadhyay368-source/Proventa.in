@@ -92,7 +92,7 @@ export default function DashboardOverview() {
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '2.2rem', fontWeight: 800, fontFamily: 'Outfit', letterSpacing: '-0.03em' }}>Executive Intelligence Overview</h1>
           <p style={{ color: 'var(--muted)', marginTop: '0.25rem' }}>Real-time Credit scoring, defaults analysis, and legal exposure indexes</p>
