@@ -42,7 +42,7 @@ export function middleware(request: NextRequest) {
   // 2. Gateway Router Check (Redirect to login if accessing dashboard without session)
   const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const isOnboardingRoute = request.nextUrl.pathname.startsWith('/onboarding');
-  const sessionToken = request.cookies.get('proventa_session')?.value;
+  const sessionToken = request.cookies.get('next-auth.session-token')?.value || request.cookies.get('__Secure-next-auth.session-token')?.value || request.cookies.get('proventa_session')?.value;
 
   if ((isDashboardRoute || isOnboardingRoute) && !sessionToken) {
     const loginUrl = new URL('/login', request.url);

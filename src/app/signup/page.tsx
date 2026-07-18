@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/components/ThemeProvider';
-import { Mail, Lock, User, Building, Sun, Moon, ArrowRight, Chrome, Layers } from 'lucide-react';
+import { Mail, Lock, User, Building, Sun, Moon, ArrowRight, Chrome, Layers, Apple, Loader2 } from 'lucide-react';
+import { signIn, getSession } from 'next-auth/react';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -16,17 +17,15 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
   // Check if already logged in
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.authenticated) {
-          router.push('/dashboard');
-        }
-      })
-      .catch(() => {});
+    getSession().then((session) => {
+      if (session) {
+        router.push('/dashboard');
+      }
+    });
   }, [router]);
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
@@ -47,7 +46,17 @@ export default function SignupPage() {
         throw new Error(data.error || 'Signup failed');
       }
 
-      // Successful signup redirect to Onboarding wizard
+      // Automatically sign in after signup
+      const signInRes = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (signInRes?.error) {
+        throw new Error(signInRes.error);
+      }
+
       router.push('/onboarding');
     } catch (err: any) {
       setError(err.message || 'An error occurred');
@@ -56,11 +65,14 @@ export default function SignupPage() {
     }
   };
 
-  const triggerSocialLogin = (provider: string) => {
-    if (provider === 'Google') {
-      router.push('/login/google');
-    } else {
-      alert(`Connecting to external authentication provider: ${provider} Secure SSO Integration.`);
+  const triggerSocialLogin = async (provider: string) => {
+    setSocialLoading(provider);
+    setError('');
+    try {
+      await signIn(provider.toLowerCase(), { callbackUrl: '/onboarding' });
+    } catch (err) {
+      setError(`Failed to connect with ${provider}.`);
+      setSocialLoading(null);
     }
   };
 
@@ -110,6 +122,7 @@ export default function SignupPage() {
           padding: '0.6rem',
           zIndex: 10
         }}
+        aria-label="Toggle Theme"
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
@@ -155,17 +168,58 @@ export default function SignupPage() {
             borderRadius: 'var(--radius-sm)',
             marginBottom: '1.25rem',
             textAlign: 'center'
-          }}>
+          }} role="alert">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSignupSubmit}>
+          {/* Social Logins */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={() => triggerSocialLogin('Google')}
+              disabled={!!socialLoading || loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {socialLoading === 'Google' ? <Loader2 size={16} className="animate-spin" /> : <Chrome size={16} />}
+              Sign up with Google
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={() => triggerSocialLogin('Azure-AD')}
+              disabled={!!socialLoading || loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {socialLoading === 'Azure-AD' ? <Loader2 size={16} className="animate-spin" /> : <Layers size={16} />}
+              Sign up with Microsoft
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={() => triggerSocialLogin('Apple')}
+              disabled={!!socialLoading || loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {socialLoading === 'Apple' ? <Loader2 size={16} className="animate-spin" /> : <Apple size={16} />}
+              Sign up with Apple
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or register with email</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+          </div>
+
           <div className="form-group">
-            <label className="form-label">Full Name</label>
+            <label className="form-label" htmlFor="name">Full Name</label>
             <div style={{ position: 'relative' }}>
               <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
               <input
+                id="name"
                 type="text"
                 required
                 placeholder="John Doe"
@@ -173,15 +227,17 @@ export default function SignupPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 style={{ paddingLeft: '2.5rem' }}
+                disabled={loading || !!socialLoading}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Organization Name</label>
+            <label className="form-label" htmlFor="orgName">Organization Name</label>
             <div style={{ position: 'relative' }}>
               <Building size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
               <input
+                id="orgName"
                 type="text"
                 required
                 placeholder="Acme Corporation"
@@ -189,15 +245,17 @@ export default function SignupPage() {
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 style={{ paddingLeft: '2.5rem' }}
+                disabled={loading || !!socialLoading}
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Work Email</label>
+            <label className="form-label" htmlFor="email">Work Email</label>
             <div style={{ position: 'relative' }}>
               <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
               <input
+                id="email"
                 type="email"
                 required
                 placeholder="name@company.com"
@@ -205,15 +263,17 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: '2.5rem' }}
+                disabled={loading || !!socialLoading}
               />
             </div>
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label">Password</label>
+            <label className="form-label" htmlFor="password">Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
               <input
+                id="password"
                 type="password"
                 required
                 placeholder="At least 8 characters"
@@ -221,32 +281,14 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: '2.5rem' }}
+                disabled={loading || !!socialLoading}
               />
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginBottom: '1.5rem' }}>
-            {loading ? 'Registering...' : 'Get Started'}
-            {!loading && <ArrowRight size={16} />}
+          <button type="submit" className="btn btn-primary" disabled={loading || !!socialLoading} style={{ width: '100%', marginBottom: '1.5rem' }}>
+            {loading ? <><Loader2 size={16} className="animate-spin" /> Registering...</> : <>Get Started <ArrowRight size={16} /></>}
           </button>
-
-          {/* Social Logins */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or register with</span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Google')}>
-              <Chrome size={16} />
-              Google
-            </button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Microsoft')}>
-              <Layers size={16} />
-              Microsoft
-            </button>
-          </div>
 
           <div style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--muted)' }}>
             Already have an account?{' '}

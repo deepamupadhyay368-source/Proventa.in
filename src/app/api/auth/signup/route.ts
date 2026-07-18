@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { hashPassword, setSession } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth';
 import { logEvent } from '@/lib/logger';
 import { generateDEK, encryptDEK } from '@/lib/encryption';
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Password must be at least 14 characters long.' }, { status: 400 });
     }
 
-    const existingUser = await db.user.findUnique({ where: { email } });
+    const existingUser = await db.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existingUser) {
       return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
     }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       const user = await prisma.user.create({
         data: {
           name,
-          email,
+          email: email.toLowerCase(),
           passwordHash,
           role: 'ADMIN',
           organizationId: org.id,
@@ -68,14 +68,6 @@ export async function POST(request: Request) {
 
     // Write audit log
     await logEvent(result.user.id, result.user.email, 'SIGNUP', 'User signed up and organization created.');
-
-    // Set session cookie
-    await setSession({
-      userId: result.user.id,
-      email: result.user.email,
-      role: result.user.role,
-      organizationId: result.org.id,
-    });
 
     return NextResponse.json({
       id: result.user.id,

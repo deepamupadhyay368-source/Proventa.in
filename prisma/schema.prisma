@@ -11,8 +11,10 @@ generator client {
 model User {
   id                String          @id @default(uuid())
   email             String          @unique
-  passwordHash      String
+  emailVerified     DateTime?
+  passwordHash      String?
   name              String
+  image             String?
   role              String          @default("USER") // ADMIN, AUDITOR, USER, etc.
   organizationId    String?
   organization      Organization?   @relation(fields: [organizationId], references: [id])
@@ -28,6 +30,10 @@ model User {
   tickets           SupportTicket[]
   logs              AuditLog[]
   sessions          Session[]
+
+  accounts          Account[]
+  devices           Device[]
+  loginHistories    LoginHistory[]
 }
 
 model Organization {
@@ -491,4 +497,56 @@ model OnboardingStep {
   teamInvited Boolean @default(false)
   dismissed Boolean @default(false)
   createdAt DateTime @default(now())
+}
+
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  
+  access_token       String?  
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Device {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceString   String
+  browser        String?
+  os             String?
+  ipAddress      String?
+  lastActive     DateTime @default(now())
+  createdAt      DateTime @default(now())
+}
+
+model LoginHistory {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider       String   // GOOGLE, MICROSOFT, APPLE, CREDENTIALS
+  status         String   // SUCCESS, FAILED
+  ipAddress      String?
+  country        String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
 }

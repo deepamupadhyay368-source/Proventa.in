@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from '@/components/ThemeProvider';
-import { Shield, Mail, Lock, Sun, Moon, ArrowRight, Chrome, Layers } from 'lucide-react';
+import { Shield, Mail, Lock, Sun, Moon, ArrowRight, Chrome, Layers, Apple, Loader2 } from 'lucide-react';
+import { signIn, getSession } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,22 +15,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
   
-  // MFA Step
-  const [step, setStep] = useState<'login' | 'mfa'>('login');
-  const [otp, setOtp] = useState('');
-  const [tempUser, setTempUser] = useState<any>(null);
-
   // Check if already logged in
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.authenticated) {
-          router.push('/dashboard');
-        }
-      })
-      .catch(() => {});
+    getSession().then((session) => {
+      if (session) {
+        router.push('/dashboard');
+      }
+    });
   }, [router]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -38,46 +32,32 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
+      if (res?.error) {
+        setError(res.error);
+      } else if (res?.ok) {
+        router.push('/dashboard');
       }
-
-      // Successful login triggers MFA / OTP step for premium security demonstration
-      setTempUser(data);
-      setStep('mfa');
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      setError('An error occurred during authentication.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMfaSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const triggerSocialLogin = async (provider: string) => {
+    setSocialLoading(provider);
     setError('');
-    
-    // Simulate OTP checking (any 6 digit OTP or '123456')
-    if (otp.length === 6) {
-      // Complete login redirect
-      router.push('/dashboard');
-    } else {
-      setError('Invalid OTP code. Please enter 6 digits.');
-    }
-  };
-
-  const triggerSocialLogin = (provider: string) => {
-    if (provider === 'Google') {
-      router.push('/login/google');
-    } else {
-      alert(`Connecting to external authentication provider: ${provider} Secure SSO Integration.`);
+    try {
+      await signIn(provider.toLowerCase(), { callbackUrl: '/dashboard' });
+    } catch (err) {
+      setError(`Failed to connect with ${provider}.`);
+      setSocialLoading(null);
     }
   };
 
@@ -127,6 +107,7 @@ export default function LoginPage() {
           padding: '0.6rem',
           zIndex: 10
         }}
+        aria-label="Toggle Theme"
       >
         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
       </button>
@@ -172,126 +153,113 @@ export default function LoginPage() {
             borderRadius: 'var(--radius-sm)',
             marginBottom: '1.25rem',
             textAlign: 'center'
-          }}>
+          }} role="alert">
             {error}
           </div>
         )}
 
-        {step === 'login' ? (
-          <form onSubmit={handleLoginSubmit}>
-            <div className="form-group">
-              <label className="form-label">Work Email</label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                <input
-                  type="email"
-                  required
-                  placeholder="name@company.com"
-                  className="form-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ paddingLeft: '2.5rem' }}
-                />
-              </div>
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
-                <a href="#" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 500 }} onClick={() => alert('Password reset simulation triggered. Check email connector logs.')}>
-                  Forgot Password?
-                </a>
-              </div>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-                <input
-                  type="password"
-                  required
-                  placeholder="••••••••"
-                  className="form-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ paddingLeft: '2.5rem' }}
-                />
-              </div>
-            </div>
-
-            <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%', marginBottom: '1.5rem' }}>
-              {loading ? 'Authenticating...' : 'Sign In'}
-              {!loading && <ArrowRight size={16} />}
+        <form onSubmit={handleLoginSubmit}>
+          {/* Social Logins */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={() => triggerSocialLogin('Google')}
+              disabled={!!socialLoading || loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {socialLoading === 'Google' ? <Loader2 size={16} className="animate-spin" /> : <Chrome size={16} />}
+              Continue with Google
             </button>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={() => triggerSocialLogin('Azure-AD')}
+              disabled={!!socialLoading || loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {socialLoading === 'Azure-AD' ? <Loader2 size={16} className="animate-spin" /> : <Layers size={16} />}
+              Continue with Microsoft
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={() => triggerSocialLogin('Apple')}
+              disabled={!!socialLoading || loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {socialLoading === 'Apple' ? <Loader2 size={16} className="animate-spin" /> : <Apple size={16} />}
+              Continue with Apple
+            </button>
+          </div>
 
-            {/* Social Logins */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-              <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or connect with</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', gap: '0.5rem' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or sign in with email</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+          </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Google')}>
-                <Chrome size={16} />
-                Google
-              </button>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => triggerSocialLogin('Microsoft')}>
-                <Layers size={16} />
-                Microsoft
-              </button>
-            </div>
-
-            <div style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--muted)' }}>
-              Don't have an account?{' '}
-              <Link href="/signup" style={{ color: 'var(--primary)', fontWeight: 600 }}>
-                Sign Up
-              </Link>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleMfaSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: 'var(--warning-bg)',
-                borderRadius: 'var(--radius-full)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--warning)',
-                border: '1px solid var(--warning-border)',
-                marginBottom: '0.5rem'
-              }}>
-                <Shield size={20} />
-              </div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--foreground)' }}>Multi-Factor Authentication</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
-                We sent a 6-digit OTP verification code to <strong>{tempUser?.email}</strong>.
-              </p>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" style={{ textAlign: 'center' }}>Verification Code</label>
+          <div className="form-group">
+            <label className="form-label" htmlFor="email">Work Email</label>
+            <div style={{ position: 'relative' }}>
+              <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
               <input
-                type="text"
+                id="email"
+                type="email"
                 required
-                maxLength={6}
-                placeholder="123456"
+                placeholder="name@company.com"
                 className="form-input"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                style={{ textAlign: 'center', letterSpacing: '0.5em', fontSize: '1.3rem', fontWeight: 'bold' }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ paddingLeft: '2.5rem' }}
+                disabled={loading || !!socialLoading}
               />
             </div>
+          </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-              Verify OTP
-            </button>
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+              <label className="form-label" htmlFor="password" style={{ marginBottom: 0 }}>Password</label>
+              <a href="#" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 500 }}>
+                Forgot Password?
+              </a>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+              <input
+                id="password"
+                type="password"
+                required
+                placeholder="••••••••••••••"
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ paddingLeft: '2.5rem' }}
+                disabled={loading || !!socialLoading}
+              />
+            </div>
+          </div>
 
-            <button type="button" className="btn btn-secondary btn-sm" style={{ width: '100%' }} onClick={() => setStep('login')}>
-              Back to Login
-            </button>
-          </form>
-        )}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <input type="checkbox" id="rememberMe" style={{ marginRight: '0.5rem' }} />
+            <label htmlFor="rememberMe" style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>Remember me</label>
+          </div>
+
+          <button type="submit" className="btn btn-primary" disabled={loading || !!socialLoading} style={{ width: '100%', marginBottom: '1.5rem' }}>
+            {loading ? <><Loader2 size={16} className="animate-spin" /> Authenticating...</> : <>Sign In <ArrowRight size={16} /></>}
+          </button>
+
+          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1rem' }}>
+            Don't have an account?{' '}
+            <Link href="/signup" style={{ color: 'var(--primary)', fontWeight: 600 }}>
+              Create Account
+            </Link>
+          </div>
+          
+          <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)' }}>
+            By signing in, you agree to our <a href="#" style={{ textDecoration: 'underline' }}>Terms of Service</a> and <a href="#" style={{ textDecoration: 'underline' }}>Privacy Policy</a>.
+          </div>
+        </form>
       </div>
     </div>
   );
